@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Footprint</title>
+	<style type="text/css">
+		html, body, #map-canvas {
+			height: 100%;
+			margin: 0;
+			padding: 0;
+		}
+
+		body { font-size: 62.5%; }
+		label, input { display:block; }
+		input.text { margin-bottom:12px; width:95%; padding: .4em; }
+		img.uploadedImage { margin-bottom:12px; width:95%; padding: .4em }
+		textarea.text { margin-bottom:12px; width:95%; padding: .4em; height: 200px }
+		fieldset { padding:0; border:0; margin-top:25px; }
+		h1 { font-size: 1.2em; margin: .6em 0; }
+		div#users-contain { width: 350px; margin: 20px 0; }
+		div#users-contain table { margin: 1em 0; border-collapse: collapse; width: 100%; }
+		div#users-contain table td, div#users-contain table th { border: 1px solid #eee; padding: .6em 10px; text-align: left; }
+		.ui-dialog .ui-state-error { padding: .3em; }
+		.validateTips { border: 1px solid transparent; padding: 0.3em; }
+
+	</style>
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+	<link rel="stylesheet" href="css/jquery.datetimepicker.css">
+	<link rel="stylesheet" href="//blueimp.github.io/Gallery/css/blueimp-gallery.min.css">
+
+	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDIekX4pNPTLAON4UFXJfI7YAfUVpliAtY"></script>
+	<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+	<script src="http://code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+	<script src="js/jquery.datetimepicker.js"></script>
+	<!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
+	<script src="js/vendor/jquery.ui.widget.js"></script>
+	<!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+	<script src="js/jquery.iframe-transport.js"></script>
+	<!-- The basic File Upload plugin -->
+	<script src="js/jquery.fileupload.js"></script>
+	<script src="//blueimp.github.io/Gallery/js/jquery.blueimp-gallery.min.js"></script>
+	<script src="js/jquery.image-gallery.min.js"></script>
+	<script type="text/javascript">
+		var currentLatitude = 0;
+		var currentLongitude = 0;
+		var map;
+		var galleryDialog;
+
+		function setCurrentLocation(lat, lng) {
+			currentLatitude = lat;
+			currentLongitude = lng;
+		}
+
+		function setCurrentDateTime() {
+			var date = new Date();
+			var str = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes();
+			$("#date").attr("value", str);
+		}
+
+		function initialize() {
+			var opts = {
+				'center' : new google.maps.LatLng(53.35301047185911, -6.2841796875),
+				'zoom' : 11,
+				'mapTypeId' : google.maps.MapTypeId.ROADMAP
+			};
+			map = new google.maps.Map(document.getElementById('map-canvas'), opts);
+
+			google.maps.event.addListener(map, 'click', function(event) {
+				setCurrentLocation(event.latLng.lat(), event.latLng.lng());
+				dialog.dialog('open');
+			});
+
+			dialog = $("#dialog-form").dialog({
+				autoOpen : false,
+				height : 550,
+				width : 350,
+				modal : true,
+				buttons : {
+					Ok : function() {
+						$(this).dialog("close");
+						var imageArray = [];
+						$.each($(".uploadedImage"), function(k, v) {
+							imageArray.push($(v).attr("src"));
+						});
+						createMarker(currentLatitude, currentLongitude, $("#date").val(), $("#brief").val(), imageArray, $("#content").val());
+
+						$.ajax({
+							url: "api/addFootprint",
+							type: "post",
+							traditional: true,
+							data: {
+								date: $("#date").val(),
+								brief: $("#brief").val(),
+								content: $("#content").val(),
+								latitude: currentLatitude,
+								longitude: currentLongitude,
+								image: imageArray
+							}, 
+							success: function(data) {
+							},
+							error: function(data) {
+							}
+						});
+						setCurrentLocation(0, 0);
+					},
+					Cancel : function() {
+						$(this).dialog("close");
+						setCurrentLocation(0, 0);
+					}
+				}
+			});
+
+		// Get footprints and mark
+		$.get("api/get", function(response) {
+			$.each(response, function(key, value) {
+				if (value.latitude != null && value.longitude != null && value.brief != null) {
+					createMarker(value.latitude, value.longitude, value.date, value.brief, value.image, value.content);
+				}	
+			});
+		});
+	}
+
+	function isArray(value) {  
+		if (typeof Array.isArray  === "function") {  
+			return Array.isArray(value);      
+		} else {
+			return Object.prototype.toString.call(value) === "[object Array]";      
+		}  
+	}
+	function refreshImageLinks(imageArray) {
+		$("#links").empty();
+		if (isArray(imageArray)) {
+			$.each(imageArray, function(k, v) {
+				$("#links").append('<a href="'+v+'" title="Banana" data-gallery><img src="'+v+'" alt="Banana" width=100></a>');
+			});
+		} else {
+			$("#links").append('<a href="'+imageArray+'" title="Banana" data-gallery><img src="'+imageArray+'" alt="Banana" width=100></a>');
+		}
+	}
+	
+	function createMarker(latitude, longitude, timestamp, brief, imageArray, content) {
+		var myLatlng = new google.maps.LatLng(latitude, longitude);
+		var marker = new google.maps.Marker({
+			position : myLatlng,
+			map : map,
+			title : brief 
+		});
+		google.maps.event.addListener(marker, "click", function() {
+			refreshImageLinks(imageArray);
+
+			$("#gallery-content").text(content);
+			galleryDialog.dialog({"title": timestamp + " " + brief});
+			galleryDialog.dialog("open");
+
+			var a = $('#links > a')[0];
+//			if (a != "undefined" && $(a).children("img").length > 0) {
+				// trigger clicking to show gallery
+				$(a).children("img")[0].click();
+//			}
+		});
+		marker.setMap(map);
+	}
+
+	$(document).ready(function() {
+		//$('#links').hide();
+
+		// configure date time picker
+		$('#date').datetimepicker({lazyInit: true});
+		setCurrentDateTime();
+
+		// configure file uploader
+		$('#fileupload').fileupload({
+			dataType: 'json',
+			done: function (e, data) {
+				$.each(data.result.imageURL, function (index, url) {
+                    //$("#uploadedImage").attr("src", url); 
+                    $('<img id="uploadedImage'+index+'" class="uploadedImage" name="uploadedImage" src="'+url+'" />').insertBefore("#marker-submit");
+                });
+			}
+		});
+
+		galleryDialog = $("#popupDialog").dialog({
+			autoOpen:false,
+			width: 800,
+			height: 540
+		});
+		google.maps.event.addDomListener(window, 'load', initialize);
+	});
+</script>
+</head>
+<body>
+	<div id="map-canvas"></div>
+	<div id="dialog-form" title="Create new marker">
+		<p class="validateTips">All form fields are required.</p>
+		<form>
+			<fieldset>
+				<label for="date">Date</label><input id="date" type="text" class="text ui-widget-content ui-corner-all" value="2014/03/15 05:06">
+				<label for="brief">Brief</label> <input type="text" name="brief" id="brief" value="" class="text ui-widget-content ui-corner-all">
+				<label for="content">Content</label> <textarea name="content" id="content" class="text ui-widget-content ui-corner-all" >xxxxxx</textarea>
+				<label for="files">Photo</label> <input id="fileupload" type="file" name="files[]" data-url="api/uploadImage" multiple> 
+				<!--img id="uploadedImage" src="" /-->
+				<input id="marker-submit" type="submit" tabindex="-1" style="position: absolute; top: -1000px">
+			</fieldset>
+		</form>
+	</div>
+
+	<!-- The dialog widget -->
+	<div id="popupDialog" title="Popup Dialog">
+		<div id="gallery-content"></div>
+		<div id="blueimp-gallery-dialog" data-show="fade" data-hide="fade" style="height: 300px;">
+			<!-- The gallery widget  -->
+			<div class="blueimp-gallery blueimp-gallery-carousel blueimp-gallery-controls" id="blueimp-gallery">
+				<div class="slides"></div>
+				<a class="prev">‹</a>
+				<a class="next">›</a>
+				<a class="play-pause"></a>
+			</div>
+		</div>
+
+		<div id="links" style="position: absolute; top:-1000000px">
+    		<!--<a href="http://upload.wikimedia.org/wikipedia/commons/c/c4/Grafton_St,_Dublin.jpg" title="Banana" data-gallery><img src="http://upload.wikimedia.org/wikipedia/commons/c/c4/Grafton_St,_Dublin.jpg" alt="Banana" width=100></a>
+    		<a href="http://dublin.eazycity.com/media/gallery/image/g/r/grafton_streetdublin.jpg" title="Apple" data-gallery><img src="http://dublin.eazycity.com/media/gallery/image/g/r/grafton_streetdublin.jpg" alt="Apple" width=100></a>
+    		<a href="http://s0.geograph.org.uk/photos/88/96/889660_8f8a0a72.jpg" title="Orange" data-gallery><img src="http://s0.geograph.org.uk/photos/88/96/889660_8f8a0a72.jpg" alt="Orange" width=100></a>-->
+    	</div>
+    </div>
+
+    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="http://code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+    <script src="js/jquery.datetimepicker.js"></script>
+    <!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
+    <script src="js/vendor/jquery.ui.widget.js"></script>
+    <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+    <script src="js/jquery.iframe-transport.js"></script>
+    <!-- The basic File Upload plugin -->
+    <script src="js/jquery.fileupload.js"></script>
+    <script src="//blueimp.github.io/Gallery/js/jquery.blueimp-gallery.min.js"></script>
+    <script src="js/jquery.image-gallery.min.js"></script>
+
+</body>
+</html>
