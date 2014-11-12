@@ -2,7 +2,8 @@ var mongo = require("mongodb");
 var url = require("url");
 var fs = require("fs");
 var path = require("path");
-var config = require("configuration")
+var config = require("./configuration.json")
+var md5 = require("MD5");
 
 var Server = mongo.Server,
     Db = mongo.Db,
@@ -27,7 +28,8 @@ exports.initialize = function() {
     path.exists(config.assetsPath, function(exists) {
         if (!exists) {
             console.log("Assets path doesn't exist which will be created. " + config.assetsPath);
-            mkdirs(config.assetsPath);
+            mkdirs(config.assetsPath, 0777, function() {
+			});
         }
     });   
 }
@@ -135,19 +137,37 @@ exports.uploadImage = function(req, res) {
     console.log(countOfFiles + " files uploaded.");
 
     var assetsImage = [];
+
     for (var key in fileList) {
-        var file = fileList[key]
+        var file = fileList[key];
+        var nameExt = getFileNameAndExtension(file.originalFilename);
+        var encodedFilename = md5(nameExt.fileName) + nameExt.ext;
+
         console.log("File path: " + file.path);
-        var newPath = config.assetsPath + file.originalFilename;
+        var newPath = config.assetsPath + encodedFilename;
         fs.rename(file.path, newPath, function (err) {
             console.log(err);
         });
-        assetsImage.push("/assets/" + file.originalFilename);
+        assetsImage.push("/assets/" + encodedFilename);
     }
     console.log("Uploaded image: " + assetsImage);
     res.send({imageURL: assetsImage});
 }
- 
+
+function getFileNameAndExtension(fileName) {
+    var fileNameAndExt = {};
+    var lastDotPos = fileName.lastIndexOf(".");
+    if (lastDotPos == -1) {
+        fileNameAndExt.fileName = fileName;
+        fileNameAndExt.ext = "";
+    } else {
+        fileNameAndExt.fileName = fileName.substring(0, lastDotPos);
+        fileNameAndExt.ext = fileName.substring(lastDotPos);
+    }
+
+    return fileNameAndExt;
+}
+
 exports.updateWine = function(req, res) {
     var id = req.params.id;
     var wine = req.body;
@@ -184,10 +204,17 @@ exports.deleteWine = function(req, res) {
 var mkdirs = module.exports.mkdirs = function(dirpath, mode, callback) {
     path.exists(dirpath, function(exists) {
         if(exists) {
+            console.log("Exists: " + dirpath + ". Callback");
             callback(dirpath);
         } else {
+            console.log("Doesn't exist: " + dirpath + ".");
             mkdirs(path.dirname(dirpath), mode, function(){
-                fs.mkdir(dirpath, mode, callback);
+                console.log("mkdir: " + dirpath);
+                fs.mkdir(dirpath, mode, function(err) {
+                    if (err) {
+                        console.log("Error: " + err);
+                    }
+                } || callback);
             });
         }
     });

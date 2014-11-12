@@ -1,4 +1,4 @@
-var config = require("configuration");
+var config = require('./configuration.json');
 var express = require('express');
 var footprintModule = require("./footprint_module");
 
@@ -15,7 +15,7 @@ app.configure(function() {
  
 app.get('/assets/:name', function(req, res) {
     console.log("Requesting asset " + req.params.name);
-    res.sendfile(__dirname + "/assets/" + req.params.name);
+    res.sendfile(config.assetsPath + req.params.name);
 });
 
 app.get('/api/get', function(req, res) {
