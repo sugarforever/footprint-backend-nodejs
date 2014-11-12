@@ -52,7 +52,7 @@ function refreshGallery(galleryDivSelector, imageArray, title) {
 		$.each(imageArray, function(k, v) {
 			appendImageURLTo(galleryDivSelector, v, title);
 		});
-	} else {
+	} else if (typeof imageArray !== 'undefined') {
 		appendImageURLTo(galleryDivSelector, imageArray, title);
 	}
 }

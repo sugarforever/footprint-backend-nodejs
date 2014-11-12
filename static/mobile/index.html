@@ -8,6 +8,7 @@
         #timeline-close { margin-top: 24px; }
         .block-style {display: block;}
         #timeline-slot-listview .block-style { margin-bottom: 4px;}
+        #popupDialog { margin: 2em;}
     </style>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.4/jquery.mobile-1.4.4.min.css">
@@ -35,10 +36,10 @@
                     <a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>
                     <label for="date" >Date:</label>
                     <input type="text" name="date" id="date" value="" data-theme="a">
-                    <label for="brief" >Brief:</label>
-                    <input type="text" name="brief" id="brief" value="" data-theme="a">
-                    <label for="content" >Content:</label>
-                    <textarea rows="5" name="content" id="content" value="" data-theme="a"></textarea>
+                    <!--<label for="brief" >Brief:</label>
+                    <input type="text" name="brief" id="brief" value="" data-theme="a">-->
+                    <label for="content" >Message:</label>
+                    <textarea rows="6" name="content" id="content" value="" data-theme="a"></textarea>
                     <label for="files" >Photo</label>
                     <input id="fileupload" type="file" name="files[]" data-url="/api/uploadImage" multiple>
                     <a id="marker-submit" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b ui-icon-back ui-btn-icon-left" data-rel="back">Done</a>
@@ -161,7 +162,7 @@
                     traditional: true,
                     data: {
                         date: $("#date").val(),
-                        brief: $("#brief").val(),
+                        //brief: $("#brief").val(),
                         content: $("#content").val(),
                         latitude: currentLatitude,
                         longitude: currentLongitude,
