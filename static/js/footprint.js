@@ -22,7 +22,8 @@ function createMarker(map, latitude, longitude, timestamp, imageArray, content) 
 		position : myLatlng,
 		map : map,
 		title : content,
-		icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
+		labelContent : content,
+		icon : 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
 	});
 
 	google.maps.event.addListener(marker, "click", function() {

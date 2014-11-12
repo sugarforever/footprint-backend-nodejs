@@ -1,6 +1,9 @@
 @charset "UTF-8";
 
+#map-page { height: 0; }
+
 #timeline-close { margin-top: 24px; }
+#timeline-panel { width: 13em; }
 #timeline-slot-listview .block-style { margin-bottom: 4px;}
 
 .full-screen { width: 100%; height: 100%; padding: 0; }
