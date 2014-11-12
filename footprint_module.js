@@ -202,20 +202,30 @@ exports.deleteWine = function(req, res) {
 }
 
 var mkdirs = module.exports.mkdirs = function(dirpath, mode, callback) {
-    path.exists(dirpath, function(exists) {
-        if(exists) {
-            console.log("Exists: " + dirpath + ". Callback");
-            callback(dirpath);
-        } else {
-            console.log("Doesn't exist: " + dirpath + ".");
-            mkdirs(path.dirname(dirpath), mode, function(){
-                console.log("mkdir: " + dirpath);
-                fs.mkdir(dirpath, mode, function(err) {
-                    if (err) {
-                        console.log("Error: " + err);
-                    }
-                } || callback);
-            });
+    if (typeof dirpath == 'undefined' || dirpath.length == 0) {
+        return;
+    }
+
+    var isAbsPath = false;
+    if (dirpath[0] === '/') {
+        isAbsPath = true;
+    }
+
+    var paths;
+    if (isAbsPath) {
+        paths = dirpath.substring(1).split("/");
+        console.log(paths);
+        paths[0] = "/" + paths[0];
+    } else {
+        paths = dirpath.split("/");
+    }
+
+    var basePath = "";
+    for (var key in paths) {
+        var _path = paths[key];
+        basePath = basePath + "/" + _path;
+        if (!path.existsSync(basePath)) {
+            fs.mkdirSync(basePath);
         }
-    });
-};
+    }
+}

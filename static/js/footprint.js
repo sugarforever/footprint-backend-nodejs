@@ -16,12 +16,12 @@ function isArray(value) {
 
 var markerGreen = null;
 
-function createMarker(map, latitude, longitude, timestamp, brief, imageArray, content) {
+function createMarker(map, latitude, longitude, timestamp, imageArray, content) {
 	var myLatlng = new google.maps.LatLng(latitude, longitude);
 	var marker = new google.maps.Marker({
 		position : myLatlng,
 		map : map,
-		title : brief,
+		title : content,
 		icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
 	});
 
@@ -33,8 +33,8 @@ function createMarker(map, latitude, longitude, timestamp, brief, imageArray, co
 		}
 		markerGreen = marker;
 
-		refreshGallery("#imageGallery", imageArray, timestamp + " " + brief);
-		$("#gallery-brief").text(timestamp + " " + brief);
+		refreshGallery("#imageGallery", imageArray, timestamp + " " + content);
+		$("#gallery-brief").text(timestamp);
 		$("#gallery-content").text(content);
 
 		jQuery(function($) {
