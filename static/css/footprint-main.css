@@ -1,5 +1,20 @@
 @charset "UTF-8";
 
+.clear {
+	clear: both;
+}
+
+.gallery-image-div {
+	float: left;
+	height: 120px;
+	margin-top: 4px;
+	margin-right: 4px;
+}
+
+.gallery-image {
+	height: 120px;
+}
+
 #map-page { height: 0; }
 
 #timeline-close { margin-top: 24px; }

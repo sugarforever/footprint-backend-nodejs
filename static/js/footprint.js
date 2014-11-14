@@ -34,7 +34,7 @@ function createMarker(map, latitude, longitude, timestamp, imageArray, content) 
 
 		markerGreen = marker;
 
-		refreshGallery("#imageGallery", imageArray, timestamp + " " + content);
+		refreshGallery("#gallery-images", imageArray, timestamp + " " + content);
 		$("#gallery-brief").text(timestamp);
 		$("#gallery-content").text(content);
 
@@ -48,7 +48,7 @@ function createMarker(map, latitude, longitude, timestamp, imageArray, content) 
 }
 
 function refreshGallery(galleryDivSelector, imageArray, title) {
-	$(galleryDivSelector + " > a.swipebox").remove();	
+	$(galleryDivSelector + " > div.gallery-image-div").remove();	
 	if (isArray(imageArray)) {
 		$.each(imageArray, function(k, v) {
 			appendImageURLTo(galleryDivSelector, v, title);
@@ -59,7 +59,7 @@ function refreshGallery(galleryDivSelector, imageArray, title) {
 }
 
 function appendImageURLTo(parentSelector, imageURL, title) {
-	$(parentSelector).append('<a class="swipebox" href="' + imageURL + '" title="' + title + '"><img src="' + imageURL + '" height=100></a>');
+	$(parentSelector).append('<div class="gallery-image-div"><a class="swipebox" href="' + imageURL + '" title="' + title + '"><img src="' + imageURL + '" class="gallery-image" /></a></div>');
 }
 
 function supplementToDoubleDigits(v) {
