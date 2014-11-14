@@ -27,11 +27,11 @@ function createMarker(map, latitude, longitude, timestamp, imageArray, content) 
 	});
 
 	google.maps.event.addListener(marker, "click", function() {
-		marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
-
 		if (markerGreen != null) {
 			markerGreen.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
 		}
+		marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
+
 		markerGreen = marker;
 
 		refreshGallery("#imageGallery", imageArray, timestamp + " " + content);
@@ -42,7 +42,7 @@ function createMarker(map, latitude, longitude, timestamp, imageArray, content) 
         	$(".swipebox").swipebox();
     	});
 
-		$("#btnImageGallery").click();
+		$("#image-gallery-dialog").popup("open");
 	});
 	marker.setMap(map);
 }

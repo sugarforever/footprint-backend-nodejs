@@ -22,7 +22,6 @@
             <h4 id="footprint-ui-title">Footprint World Map</h4>
         </div>
         <div data-role="main" class="ui-content" style="display: none">
-            <a id="btnOpenDialog" href="#create-marker-dialog" data-rel="popup" data-position-to="window" data-transition="fade" class="ui-btn ui-corner-all ui-shadow ui-btn-inline">Open Dialog Popup</a>
             <div data-role="popup" id="create-marker-dialog" data-theme="a" class="ui-corner-all mobile-dialog">
                 <div data-role="main" class="ui-content">
                     <h4>Create new marker</h4>
@@ -38,7 +37,6 @@
                     <a id="marker-submit" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b ui-icon-back ui-btn-icon-left" data-rel="back">Done</a>
                 </div>
             </div>
-            <a id="btnImageGallery" href="#image-gallery-dialog" data-rel="popup" data-position-to="window" data-transition="fade" class="ui-btn ui-corner-all ui-shadow ui-btn-inline"></a>
             <div data-role="popup" id="image-gallery-dialog" data-theme="a">
                 <div data-role="main" class="ui-content" id="imageGallery">
                     <span id="gallery-brief" style="margin-right:24px;"></span><a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>
@@ -87,7 +85,8 @@
             google.maps.event.addListener(map, 'dblclick', function(event) {
                 setCurrentLocation(event.latLng.lat(), event.latLng.lng());
                 setDefaultForFields();
-                $("#btnOpenDialog").click();
+
+                $("#create-marker-dialog").popup("open");
             });
 
             $.get("/api/get", function(response) {
