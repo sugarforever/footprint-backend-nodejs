@@ -124,7 +124,12 @@
             }          
         };
 
+        $( window ).resize(function() {
+            extendMapCanvasToFillHeight(['[data-role="footer"]'], "#map-canvas");
+        });
+
         $( document ).ready(function() {
+            extendMapCanvasToFillHeight(['[data-role="footer"]'], "#map-canvas");
             $('#fileupload').fileupload({
                 dataType: 'json',
                 done: function (e, data) {
@@ -178,7 +183,9 @@
             //init();
 
             $("#popup-timeline-panel").bind("click", function() {
+                $("#popup-timeline-panel").attr("disabled", "disabled");
                 generateTimelineSlotListView("#timeline-slot-listview", function() {
+                    $("#popup-timeline-panel").removeAttr("disabled");
                     $("#timeline-panel").panel("open");
                 });
                 return false;    

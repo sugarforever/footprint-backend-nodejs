@@ -1,3 +1,13 @@
+function extendMapCanvasToFillHeight(selectorsExcluded, mapCanvasSelector) {
+	var pixelsExcluded = 0;
+	for (key in selectorsExcluded) {
+		pixelsExcluded = pixelsExcluded + $(selectorsExcluded[key]).outerHeight();
+	}
+
+	$(mapCanvasSelector).height(document.body.clientHeight - pixelsExcluded);
+	$(mapCanvasSelector).css("width", "100%");
+}
+
 function loadGoogleMap(callback) {
 	var script=document.createElement("script");
 	script.type="text/javascript";

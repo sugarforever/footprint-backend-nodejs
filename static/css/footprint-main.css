@@ -15,8 +15,6 @@
 	height: 120px;
 }
 
-#map-page { height: 0; }
-
 #timeline-close { margin-top: 24px; }
 #timeline-panel { width: 11em; }
 #timeline-slot-listview .block-style { margin-bottom: 4px;}
