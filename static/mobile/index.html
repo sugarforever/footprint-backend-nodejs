@@ -52,6 +52,7 @@
     <!--script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDIekX4pNPTLAON4UFXJfI7YAfUVpliAtY"></script-->
     <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
     <script src="http://code.jquery.com/mobile/1.4.4/jquery.mobile-1.4.4.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.11.2/jquery-ui.min.js"></script>    
     <script src="js/jquery.fileupload.js"></script>
     <script src="js/jquery.datetimepicker.js"></script>
     <script src="/js/jquery.swipebox.min.js"></script>
@@ -125,11 +126,17 @@
         };
 
         $( window ).resize(function() {
-            extendMapCanvasToFillHeight(['[data-role="footer"]'], "#map-canvas");
+            extendMapCanvasToFillHeight(['[data-role="header"]'], "#map-canvas");
         });
 
         $( document ).ready(function() {
-            extendMapCanvasToFillHeight(['[data-role="footer"]'], "#map-canvas");
+            $("#image-gallery-dialog").resize(function() {
+                alert("resized");
+                //$("#image-gallery-dialog").css("margin: 0 auto;");
+                //$("#image-gallery-dialog").css("left: 0;");
+            });
+
+            extendMapCanvasToFillHeight(['[data-role="header"]'], "#map-canvas");
             $('#fileupload').fileupload({
                 dataType: 'json',
                 done: function (e, data) {

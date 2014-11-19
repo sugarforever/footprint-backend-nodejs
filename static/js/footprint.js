@@ -4,6 +4,8 @@ function extendMapCanvasToFillHeight(selectorsExcluded, mapCanvasSelector) {
 		pixelsExcluded = pixelsExcluded + $(selectorsExcluded[key]).outerHeight();
 	}
 
+	//alert(document.body.clientHeight);
+	//alert(pixelsExcluded);
 	$(mapCanvasSelector).height(document.body.clientHeight - pixelsExcluded);
 	$(mapCanvasSelector).css("width", "100%");
 }
@@ -69,7 +71,18 @@ function refreshGallery(galleryDivSelector, imageArray, title) {
 }
 
 function appendImageURLTo(parentSelector, imageURL, title) {
-	$(parentSelector).append('<div class="gallery-image-div"><a class="swipebox" href="' + imageURL + '" title="' + title + '"><img src="' + imageURL + '" class="gallery-image" /></a></div>');
+	var img = $('<img class="gallery-image" />');
+	$(img).load(function() {
+		$("#image-gallery-dialog").position({
+		    of: $(window)
+		});
+	});
+	$(img).attr("src", imageURL);
+	var a = $('<a class="swipebox" href="' + imageURL + '" title="' + title + '"></a>');
+	var div = $('<div class="gallery-image-div"></div>');
+	img.appendTo(a);
+	a.appendTo(div);
+	$(parentSelector).append(div);
 }
 
 function supplementToDoubleDigits(v) {
