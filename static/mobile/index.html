@@ -59,6 +59,8 @@
     <script src="/js/ios-orientationchange-fix.js"></script>
     <script src="../js/footprint.js"></script>
     <script type="text/javascript">
+        var footprintInstance = new footprint();
+
         var currentLatitude = 0;
         var currentLongitude = 0;
         var map;
@@ -94,6 +96,8 @@
 
             $.get("/api/get", function(response) {
                 var bounds = new google.maps.LatLngBounds();
+                footprintInstance.initialize(response);
+
                 $.each(response, function(key, value) {                        
                     if (value.latitude != null && value.longitude != null && value.content != null) {
                         createMarker(map, value.latitude, value.longitude, value.date, value.image, value.content);

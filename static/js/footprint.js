@@ -1,3 +1,29 @@
+var footprint = function() {
+
+}
+
+footprint.prototype.initialize = function(footprints) {
+	this.cacheFootprints = new Array();
+	if (isArray(footprints)) {
+		for (var index = 0; index < footprints.length; ++index) {
+			var value = footprints[index];
+			if (! (value.date in this.cacheFootprints)) {
+				this.cacheFootprints[value.date] = new Array();
+			}
+
+			this.cacheFootprints[value.date].push(value);
+		};
+	}
+}
+
+footprint.prototype.getCachedFootprintsByDate = function(date) {
+	var cached = new Array();
+	if (date in this.cacheFootprints) {
+		cached = this.cacheFootprints[date];
+	}
+	return cached;
+}
+
 function extendMapCanvasToFillHeight(selectorsExcluded, mapCanvasSelector) {
 	var pixelsExcluded = 0;
 	for (key in selectorsExcluded) {
@@ -108,11 +134,19 @@ function generateTimelineSlotListView(listviewSelector, callback) {
 			
             $.each(value, function(key, time) {
             	var a = $('<a href="#" class="block-style">' + time + '</a>');
+            	var dateTime = date + " " + time;
+
             	$(a).bind("click", function() {
-            		$.get("/api/timeline/getGeoCenter", {datetime: date + " " + time}, function(response) {    
-		             	var ll = new google.maps.LatLng(response.latitude, response.longitude);
-                    	map.setCenter(ll);
-		            });
+            		//$.get("/api/timeline/getGeoCenter", {datetime: date + " " + time}, function(response) {    
+		            // 	var ll = new google.maps.LatLng(response.latitude, response.longitude);
+                    //	map.setCenter(ll);
+		            //});
+            		var cachedFootprints = footprintInstance.getCachedFootprintsByDate(dateTime);
+            		if (cachedFootprints.length > 0) {
+            			var first = cachedFootprints[0];
+            			var ll = new google.maps.LatLng(first.latitude, first.longitude);
+            			map.setCenter(ll);
+            		}
             	});
             	$(div).append(a);
             });
