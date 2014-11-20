@@ -1,9 +1,9 @@
 var footprint = function() {
-
+	this.cacheFootprints = new Array();
+	this.cacheMarkers = new Array();
 }
 
 footprint.prototype.initialize = function(footprints) {
-	this.cacheFootprints = new Array();
 	if (isArray(footprints)) {
 		for (var index = 0; index < footprints.length; ++index) {
 			var value = footprints[index];
@@ -25,10 +25,6 @@ footprint.prototype.getCachedFootprintsByDate = function(date) {
 }
 
 footprint.prototype.cacheGoogleMarker = function(latitude, longitude, marker) {
-	if (!isArray(this.cacheMarkers)) {
-		this.cacheMarkers = new Array();
-	}
-
 	if (! (latitude in this.cacheMarkers)) {
 		this.cacheMarkers[latitude] = new Array();
 	}
@@ -43,10 +39,8 @@ footprint.prototype.cacheGoogleMarker = function(latitude, longitude, marker) {
 
 footprint.prototype.findCachedGoogleMarkersByLatitudeAndLongitude = function(latitude, longitude) {
 	var markers = new Array();
-	if (isArray(this.cacheMarkers)) {
-		if ((latitude in this.cacheMarkers) && (longitude in this.cacheMarkers[latitude])) {
-			markers = this.cacheMarkers[latitude][longitude];
-		}
+	if ((latitude in this.cacheMarkers) && (longitude in this.cacheMarkers[latitude])) {
+		markers = this.cacheMarkers[latitude][longitude];
 	}
 
 	return markers;
