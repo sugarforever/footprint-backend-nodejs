@@ -24,6 +24,34 @@ footprint.prototype.getCachedFootprintsByDate = function(date) {
 	return cached;
 }
 
+footprint.prototype.cacheGoogleMarker = function(latitude, longitude, marker) {
+	if (!isArray(this.cacheMarkers)) {
+		this.cacheMarkers = new Array();
+	}
+
+	if (! (latitude in this.cacheMarkers)) {
+		this.cacheMarkers[latitude] = new Array();
+	}
+
+	var longitudeToMakers = this.cacheMarkers[latitude];
+	if (! (longitude in longitudeToMakers)) {
+		longitudeToMakers[longitude] = new Array();
+	}
+
+	longitudeToMakers[longitude].push(marker);
+}
+
+footprint.prototype.findCachedGoogleMarkersByLatitudeAndLongitude = function(latitude, longitude) {
+	var markers = new Array();
+	if (isArray(this.cacheMarkers)) {
+		if ((latitude in this.cacheMarkers) && (longitude in this.cacheMarkers[latitude])) {
+			markers = this.cacheMarkers[latitude][longitude];
+		}
+	}
+
+	return markers;
+}
+
 function extendMapCanvasToFillHeight(selectorsExcluded, mapCanvasSelector) {
 	var pixelsExcluded = 0;
 	for (key in selectorsExcluded) {
@@ -83,6 +111,7 @@ function createMarker(map, latitude, longitude, timestamp, imageArray, content) 
 		$("#image-gallery-dialog").popup("open");
 	});
 	marker.setMap(map);
+	footprintInstance.cacheGoogleMarker(latitude, longitude, marker);
 }
 
 function refreshGallery(galleryDivSelector, imageArray, title) {
@@ -146,6 +175,14 @@ function generateTimelineSlotListView(listviewSelector, callback) {
             			var first = cachedFootprints[0];
             			var ll = new google.maps.LatLng(first.latitude, first.longitude);
             			map.setCenter(ll);
+            		}
+
+            		for (var index = 0; index < cachedFootprints.length; ++index) {
+            			var fp = cachedFootprints[index];
+            			var markers = footprintInstance.findCachedGoogleMarkersByLatitudeAndLongitude(fp.latitude,fp.longitude);
+            			for (var k in markers) {
+            				markers[k].setIcon('http://maps.google.com/mapfiles/ms/icons/blue-dot.png');
+            			}
             		}
             	});
             	$(div).append(a);
