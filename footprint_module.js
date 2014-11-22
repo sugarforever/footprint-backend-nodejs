@@ -109,7 +109,7 @@ exports.findGeoCenterByDateTime = function(req, res) {
  
 exports.addFootprint = function(req, res) {
     var footprint = req.body;
-    var regexp = /(....)\/(..)\/(..) (..):(..)/;
+    var regexp = /(....)\-(..)\-(..) (..):(..)/;
     console.log('Adding footprint: ' + JSON.stringify(footprint));
     db.collection('footprint', function(err, collection) {
         var matches = regexp.exec(footprint.date);

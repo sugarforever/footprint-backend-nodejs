@@ -170,7 +170,7 @@ function supplementToDoubleDigits(v) {
 
 function setCurrentDateTime(selecter) {
 	var date = new Date();
-	var str = date.getFullYear() + "/" + supplementToDoubleDigits((date.getMonth() + 1)) + "/" + supplementToDoubleDigits(date.getDate()) + " " + supplementToDoubleDigits(date.getHours()) + ":" + supplementToDoubleDigits(date.getMinutes());
+	var str = date.getFullYear() + "-" + supplementToDoubleDigits((date.getMonth() + 1)) + "-" + supplementToDoubleDigits(date.getDate()) + " " + supplementToDoubleDigits(date.getHours()) + ":" + supplementToDoubleDigits(date.getMinutes());
 	$(selecter).attr("value", str);
 }
 
