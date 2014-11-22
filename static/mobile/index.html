@@ -100,7 +100,7 @@
 
                 $.each(response, function(key, value) {                        
                     if (value.latitude != null && value.longitude != null && value.content != null) {
-                        createMarker(map, value.latitude, value.longitude, value.date, value.image, value.content);
+                        createMarker(map, value);
                         bounds.extend(new google.maps.LatLng(value.latitude, value.longitude));
                     }
                 });
@@ -168,20 +168,15 @@
                 $.each($(".uploadedImage"), function(k, v) {
                     imageArray.push($(v).attr("src"));
                 });
-                createMarker(map, currentLatitude, currentLongitude, $("#date").val(), imageArray, $("#content").val());
+
+                var jsonFootprint = footprintInstance.createFootprintJSONObject(currentLatitude, currentLongitude, $("#date").val(), imageArray, $("#content").val());
+                createMarker(map, jsonFootprint);
 
                 $.ajax({
                     url: "/api/addFootprint",
                     type: "post",
                     traditional: true,
-                    data: {
-                        date: $("#date").val(),
-                        //brief: $("#brief").val(),
-                        content: $("#content").val(),
-                        latitude: currentLatitude,
-                        longitude: currentLongitude,
-                        image: imageArray
-                    }, 
+                    data: jsonFootprint, 
                     success: function(data) {
                     },
                     error: function(data) {

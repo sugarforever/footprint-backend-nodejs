@@ -61,6 +61,17 @@ footprint.prototype.setBlueCachedGoogleMarkersByLatitudeAndLongitude = function(
 	return markers;
 }
 
+footprint.prototype.createFootprintJSONObject = function(latitude, longitude, timestamp, imageArray, content) {
+	var json = {
+		latitude: latitude,
+		longitude: longitude,
+		date: timestamp,
+		image: imageArray,
+		content: content
+	};
+	return json;
+}
+
 function extendMapCanvasToFillHeight(selectorsExcluded, mapCanvasSelector) {
 	var pixelsExcluded = 0;
 	for (key in selectorsExcluded) {
@@ -91,13 +102,13 @@ function isArray(value) {
 
 var markerGreen = null;
 
-function createMarker(map, latitude, longitude, timestamp, imageArray, content) {
-	var myLatlng = new google.maps.LatLng(latitude, longitude);
+function createMarker(map, jsonFootprint) {
+	var myLatlng = new google.maps.LatLng(jsonFootprint.latitude, jsonFootprint.longitude);
 	var marker = new google.maps.Marker({
 		position : myLatlng,
 		map : map,
-		title : content,
-		labelContent : content,
+		title : jsonFootprint.content,
+		labelContent : jsonFootprint.content,
 		icon : 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
 	});
 
@@ -109,9 +120,9 @@ function createMarker(map, latitude, longitude, timestamp, imageArray, content) 
 
 		markerGreen = marker;
 
-		refreshGallery("#gallery-images", imageArray, timestamp + " " + content);
-		$("#gallery-brief").text(timestamp);
-		$("#gallery-content").text(content);
+		refreshGallery("#gallery-images", jsonFootprint.image, jsonFootprint.date + " " + jsonFootprint.content);
+		$("#gallery-brief").text(jsonFootprint.date);
+		$("#gallery-content").text(jsonFootprint.content);
 
 		jQuery(function($) {
         	$(".swipebox").swipebox();
@@ -120,7 +131,7 @@ function createMarker(map, latitude, longitude, timestamp, imageArray, content) 
 		$("#image-gallery-dialog").popup("open");
 	});
 	marker.setMap(map);
-	footprintInstance.cacheGoogleMarker(latitude, longitude, marker);
+	footprintInstance.cacheGoogleMarker(jsonFootprint.latitude, jsonFootprint.longitude, marker);
 }
 
 function refreshGallery(galleryDivSelector, imageArray, title) {
