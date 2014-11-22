@@ -1,6 +1,7 @@
 var footprint = function() {
 	this.cacheFootprints = new Array();
 	this.cacheMarkers = new Array();
+	this.blueMarkers = new Array();
 }
 
 footprint.prototype.initialize = function(footprints) {
@@ -37,12 +38,26 @@ footprint.prototype.cacheGoogleMarker = function(latitude, longitude, marker) {
 	longitudeToMakers[longitude].push(marker);
 }
 
-footprint.prototype.findCachedGoogleMarkersByLatitudeAndLongitude = function(latitude, longitude) {
+footprint.prototype.cleanBlueMarkersArray = function() {
+	for (var k in this.blueMarkers) {
+		var marker = this.blueMarkers[k];
+		marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
+	}
+	this.blueMarkers = [];
+}
+
+footprint.prototype.setBlueCachedGoogleMarkersByLatitudeAndLongitude = function(latitude, longitude) {
 	var markers = new Array();
 	if ((latitude in this.cacheMarkers) && (longitude in this.cacheMarkers[latitude])) {
 		markers = this.cacheMarkers[latitude][longitude];
 	}
 
+	this.cleanBlueMarkersArray();
+
+	for (var k in markers) {
+        markers[k].setIcon('http://maps.google.com/mapfiles/ms/icons/blue-dot.png');
+        this.blueMarkers.push(markers[k]);
+    }
 	return markers;
 }
 
@@ -173,10 +188,7 @@ function generateTimelineSlotListView(listviewSelector, callback) {
 
             		for (var index = 0; index < cachedFootprints.length; ++index) {
             			var fp = cachedFootprints[index];
-            			var markers = footprintInstance.findCachedGoogleMarkersByLatitudeAndLongitude(fp.latitude,fp.longitude);
-            			for (var k in markers) {
-            				markers[k].setIcon('http://maps.google.com/mapfiles/ms/icons/blue-dot.png');
-            			}
+            			var markers = footprintInstance.setBlueCachedGoogleMarkersByLatitudeAndLongitude(fp.latitude,fp.longitude);
             		}
             	});
             	$(div).append(a);
