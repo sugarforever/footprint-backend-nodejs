@@ -2,8 +2,10 @@ var mongo = require("mongodb");
 var url = require("url");
 var fs = require("fs");
 var path = require("path");
-var config = require("./configuration.json")
+var config = require("./configuration.json");
 var md5 = require("MD5");
+var imageModule = require("./image_module");
+var step = require("Step");
 
 var Server = mongo.Server,
     Db = mongo.Db,
@@ -32,6 +34,13 @@ exports.initialize = function() {
 			});
         }
     });   
+    path.exists(config.thumbnailPath, function(exists) {
+        if (!exists) {
+            console.log("Thumbnail path doesn't exist which will be created. " + config.thumbnailPath);
+            mkdirs(config.thumbnailPath, 0777, function() {
+            });
+        }
+    });
 }
  
 exports.findById = function(req, res) {
@@ -146,8 +155,23 @@ exports.uploadImage = function(req, res) {
         console.log("File path: " + file.path);
         var newPath = config.assetsPath + encodedFilename;
         fs.rename(file.path, newPath, function (err) {
-            console.log(err);
+            if (err != null)
+                console.log("ERROR: " + err);
         });
+
+        var assetsFileName = newPath;
+        var thumbnailFileName = config.thumbnailPath + encodedFilename;
+        console.log("Thumnail path: " + thumbnailFileName);
+        step(
+            function resize() {
+                imageModule.resizeImage(assetsFileName, thumbnailFileName, config.thumbnailHeight, function(error) {
+                    if (error != null) {
+                        console.log("ERROR: " + error);
+                    }
+                }); 
+            }
+        );
+ 
         assetsImage.push("/assets/" + encodedFilename);
     }
     console.log("Uploaded image: " + assetsImage);

@@ -146,13 +146,15 @@ function refreshGallery(galleryDivSelector, imageArray, title) {
 }
 
 function appendImageURLTo(parentSelector, imageURL, title) {
+    var thumbnailImage = imageURL.replace("assets", "thumbnail");
 	var img = $('<img class="gallery-image" />');
 	$(img).load(function() {
 		$("#image-gallery-dialog").position({
 		    of: $(window)
 		});
 	});
-	$(img).attr("src", imageURL);
+	//$(img).attr("src", imageURL);
+	$(img).attr("src", thumbnailImage);
 	var a = $('<a class="swipebox" href="' + imageURL + '" title="' + title + '"></a>');
 	var div = $('<div class="gallery-image-div"></div>');
 	img.appendTo(a);
