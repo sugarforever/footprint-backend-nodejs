@@ -6,6 +6,7 @@ var config = require("./configuration.json");
 var md5 = require("MD5");
 var imageModule = require("./image_module");
 var step = require("Step");
+var logger = require("./logging_module").getLogger(__filename);
 
 var Server = mongo.Server,
     Db = mongo.Db,
@@ -16,10 +17,10 @@ db = new Db("footprint-db", server);
 
 db.open(function(err, db) {
     if(!err) {
-        console.log("Connected to 'footprint-db' database");
+        logger.debug("Connected to 'footprint-db' database");
         db.collection('footprint', {strict:true}, function(err, collection) {
             if (err) {
-                console.log("The 'footprint' collection doesn't exist. Creating it with sample data...");
+                logger.error("The 'footprint' collection doesn't exist. Creating it with sample data...");
                 //populateDB();
             }
         });
@@ -27,25 +28,16 @@ db.open(function(err, db) {
 });
 
 exports.initialize = function() {
-    path.exists(config.assetsPath, function(exists) {
-        if (!exists) {
-            console.log("Assets path doesn't exist which will be created. " + config.assetsPath);
-            mkdirs(config.assetsPath, 0777, function() {
-			});
-        }
-    });   
-    path.exists(config.thumbnailPath, function(exists) {
-        if (!exists) {
-            console.log("Thumbnail path doesn't exist which will be created. " + config.thumbnailPath);
-            mkdirs(config.thumbnailPath, 0777, function() {
-            });
-        }
-    });
+    createDirIfNotExists(config.assetsPath);
+    createDirIfNotExists(config.thumbnailPath);
+
+    var logParent = path.dirname(config.logFile);
+    createDirIfNotExists(logParent);
 }
  
 exports.findById = function(req, res) {
     var id = req.params.id;
-    console.log('Retrieving footprint: ' + id);
+    logger.debug('Retrieving footprint: ' + id);
     db.collection('footprint', function(err, collection) {
         collection.findOne({'_id':new BSON.ObjectID(id)}, function(err, item) {
             res.send(item);
@@ -54,7 +46,7 @@ exports.findById = function(req, res) {
 };
  
 exports.findAll = function(req, res) {
-	console.log("API - Find all footprints.");
+    logger.debug("API - Find all footprints.");
     db.collection('footprint', function(err, collection) {
         collection.find().toArray(function(err, items) {
             res.send(items);
@@ -64,7 +56,7 @@ exports.findAll = function(req, res) {
 
 exports.findFootprintsByDate = function(req, res) {
     var date = req.params.date;
-    console.log("API - Find footprints by date: " + date + ".");
+    logger.debug("API - Find footprints by date: " + date + ".");
 
     var regexp = /(....)\/(..)\/(..)/;
     if (regexp.matches(date)) {
@@ -81,7 +73,7 @@ exports.findFootprintsByDate = function(req, res) {
 };
 
 exports.findTimelineSlots = function(req, res) {
-    console.log("API - Find timeline slots.");
+    logger.debug("API - Find timeline slots.");
     db.collection('footprint', function(err, collection) {
         collection.find({}, {date: true}).sort({isoDate: -1}).toArray(function(err, items) {
             var returnedSlots = {};
@@ -102,12 +94,12 @@ exports.findTimelineSlots = function(req, res) {
 
 exports.findGeoCenterByDateTime = function(req, res) {
     var datetime = url.parse(req.url, true).query.datetime;
-    console.log("API - Find GEO center by date and time: " + datetime + ".");
+    logger.debug("API - Find GEO center by date and time: " + datetime + ".");
 
     db.collection('footprint', function(err, collection) {
         collection.find({date: datetime}, {latitude: true, longitude: true}).toArray(function(err, items) {
             var first = {};
-            console.log(items.length + " footprint items found at " + datetime);
+            logger.debug(items.length + " footprint items found at " + datetime);
             if (items.length > 0) {
                 first = items[0];
             }
@@ -119,7 +111,7 @@ exports.findGeoCenterByDateTime = function(req, res) {
 exports.addFootprint = function(req, res) {
     var footprint = req.body;
     var regexp = /(....)\-(..)\-(..) (..):(..)/;
-    console.log('Adding footprint: ' + JSON.stringify(footprint));
+    logger.debug('Adding footprint: ' + JSON.stringify(footprint));
     db.collection('footprint', function(err, collection) {
         var matches = regexp.exec(footprint.date);
 
@@ -139,11 +131,11 @@ exports.addFootprint = function(req, res) {
     });
 }
 exports.uploadImage = function(req, res) {
-    console.log('Uploading image: ' + JSON.stringify(req.files));
+    logger.debug('Uploading image: ' + JSON.stringify(req.files));
     
     var fileList = req.files.files;
     var countOfFiles = fileList.length;
-    console.log(countOfFiles + " files uploaded.");
+    logger.debug(countOfFiles + " files uploaded.");
 
     var assetsImage = [];
 
@@ -152,21 +144,22 @@ exports.uploadImage = function(req, res) {
         var nameExt = getFileNameAndExtension(file.originalFilename);
         var encodedFilename = md5(nameExt.fileName) + nameExt.ext;
 
-        console.log("File path: " + file.path);
+        logger.debug("File path: " + file.path);
         var newPath = config.assetsPath + encodedFilename;
         fs.rename(file.path, newPath, function (err) {
-            if (err != null)
-                console.log("ERROR: " + err);
+            if (err != null) {
+                logger.error(err);
+            }
         });
 
         var assetsFileName = newPath;
         var thumbnailFileName = config.thumbnailPath + encodedFilename;
-        console.log("Thumnail path: " + thumbnailFileName);
+        logger.debug("Thumnail path: " + thumbnailFileName);
         step(
             function resize() {
                 imageModule.resizeImage(assetsFileName, thumbnailFileName, config.thumbnailHeight, function(error) {
                     if (error != null) {
-                        console.log("ERROR: " + error);
+                        logger.error(err);
                     }
                 }); 
             }
@@ -174,8 +167,21 @@ exports.uploadImage = function(req, res) {
  
         assetsImage.push("/assets/" + encodedFilename);
     }
-    console.log("Uploaded image: " + assetsImage);
+    logger.debug("Uploaded image: " + assetsImage);
     res.send({imageURL: assetsImage});
+}
+
+function createDirIfNotExists(dir) {
+    path.exists(dir, function(exists) {
+        if (!exists) {
+            logger.debug(dir + " doesn't exist. It will be created.");
+            mkdirs(dir, 0777, function(error) {
+                if (error != null) {
+                    logger.error(error);
+                }
+            });
+        }
+    });  
 }
 
 function getFileNameAndExtension(fileName) {
