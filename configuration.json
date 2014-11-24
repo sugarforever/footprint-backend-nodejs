@@ -1,5 +1,6 @@
 {
 	"port" : 8000,
+	"logFile" : "/var/data/footprint-backend/log/footprint.log",
 	"assetsPath" : "/var/data/footprint-backend/assets/",
 	"thumbnailPath" : "/var/data/footprint-backend/thumbnail/",
     "thumbnailHeight" : 128
