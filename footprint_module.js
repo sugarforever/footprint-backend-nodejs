@@ -13,28 +13,23 @@ var Server = mongo.Server,
     BSON = mongo.BSONPure;
 
 var server = new Server("localhost", 27017, {auto_reconnect: true});
-db = new Db("footprint-db", server);
+var db;
 
-db.open(function(err, db) {
-    if(!err) {
-        logger.debug("Connected to 'footprint-db' database");
-        db.collection('footprint', {strict:true}, function(err, collection) {
-            if (err) {
-                logger.error("The 'footprint' collection doesn't exist. Creating it with sample data...");
-                //populateDB();
-            }
-        });
-    }
-});
-
-exports.initialize = function() {
-    createDirIfNotExists(config.assetsPath);
-    createDirIfNotExists(config.thumbnailPath);
-
-    var logParent = path.dirname(config.logFile);
-    createDirIfNotExists(logParent);
+exports.initializeDatabase = function() {
+    db = new Db("footprint-db", server);
+    db.open(function(err, db) {
+        if(!err) {
+            logger.debug("Connected to 'footprint-db' database");
+            db.collection('footprint', {strict:true}, function(err, collection) {
+                if (err) {
+                    logger.error("The 'footprint' collection doesn't exist. Creating it with sample data...");
+                    //populateDB();
+                }
+            });
+        }
+    });
 }
- 
+
 exports.findById = function(req, res) {
     var id = req.params.id;
     logger.debug('Retrieving footprint: ' + id);
@@ -171,17 +166,17 @@ exports.uploadImage = function(req, res) {
     res.send({imageURL: assetsImage});
 }
 
-function createDirIfNotExists(dir) {
-    path.exists(dir, function(exists) {
-        if (!exists) {
-            logger.debug(dir + " doesn't exist. It will be created.");
-            mkdirs(dir, 0777, function(error) {
-                if (error != null) {
-                    logger.error(error);
-                }
-            });
-        }
-    });  
+exports.createDirIfNotExists = function(dir, callback) {
+    if (!path.existsSync(dir)) {
+        logger.debug(dir + " doesn't exist. It will be created.");
+        mkdirs(dir, 0777, function(error) {
+            if (error != null) {
+                logger.error(error);
+            }
+
+            callback(error);
+        });
+    }
 }
 
 function getFileNameAndExtension(fileName) {
@@ -254,8 +249,10 @@ var mkdirs = module.exports.mkdirs = function(dirpath, mode, callback) {
     for (var key in paths) {
         var _path = paths[key];
         basePath = basePath + "/" + _path;
+        console.log(basePath);
         if (!path.existsSync(basePath)) {
             fs.mkdirSync(basePath);
+            console.log(basePath + " created.");
         }
     }
 }
