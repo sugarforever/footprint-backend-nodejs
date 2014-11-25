@@ -2,13 +2,15 @@ var config = require('./configuration.json');
 var express = require('express');
 var path = require('path');
 var footprintModule = require("./footprint_module");
-var logger = require("./logging_module");
+var ioutil = require("./ioutil_module");
+var logger = require("./logging_module").getLogger(__filename);
 
-footprintModule.createDirIfNotExists(config.assetsPath, function(error) {});
-footprintModule.createDirIfNotExists(config.thumbnailPath, function(error) {});
+ioutil.createDirIfNotExists(config.assetsPath, function(error) {});
+ioutil.createDirIfNotExists(config.thumbnailPath, function(error) {});
 
-footprintModule.initializeDatabase();
+footprintModule.initializeDatabase(main);
 
+function main() {
     var app = express();
 
     app.disable("etag");
@@ -44,4 +46,5 @@ footprintModule.initializeDatabase();
     app.post('/api/uploadImage', footprintModule.uploadImage);
 
     app.listen(config.port);
-    console.log('Footprint service backend started on port ' + config.port + '...');
+    logger.debug('Footprint service backend started on port ' + config.port + '...');
+}

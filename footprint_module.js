@@ -15,7 +15,7 @@ var Server = mongo.Server,
 var server = new Server("localhost", 27017, {auto_reconnect: true});
 var db;
 
-exports.initializeDatabase = function() {
+exports.initializeDatabase = function(callback) {
     db = new Db("footprint-db", server);
     db.open(function(err, db) {
         if(!err) {
@@ -26,6 +26,10 @@ exports.initializeDatabase = function() {
                     //populateDB();
                 }
             });
+
+            callback();
+        } else {
+            logger.error(err);
         }
     });
 }
@@ -166,19 +170,6 @@ exports.uploadImage = function(req, res) {
     res.send({imageURL: assetsImage});
 }
 
-exports.createDirIfNotExists = function(dir, callback) {
-    if (!path.existsSync(dir)) {
-        logger.debug(dir + " doesn't exist. It will be created.");
-        mkdirs(dir, 0777, function(error) {
-            if (error != null) {
-                logger.error(error);
-            }
-
-            callback(error);
-        });
-    }
-}
-
 function getFileNameAndExtension(fileName) {
     var fileNameAndExt = {};
     var lastDotPos = fileName.lastIndexOf(".");
@@ -224,35 +215,4 @@ exports.deleteWine = function(req, res) {
             }
         });
     });
-}
-
-var mkdirs = module.exports.mkdirs = function(dirpath, mode, callback) {
-    if (typeof dirpath == 'undefined' || dirpath.length == 0) {
-        return;
-    }
-
-    var isAbsPath = false;
-    if (dirpath[0] === '/') {
-        isAbsPath = true;
-    }
-
-    var paths;
-    if (isAbsPath) {
-        paths = dirpath.substring(1).split("/");
-        console.log(paths);
-        paths[0] = "/" + paths[0];
-    } else {
-        paths = dirpath.split("/");
-    }
-
-    var basePath = "";
-    for (var key in paths) {
-        var _path = paths[key];
-        basePath = basePath + "/" + _path;
-        console.log(basePath);
-        if (!path.existsSync(basePath)) {
-            fs.mkdirSync(basePath);
-            console.log(basePath + " created.");
-        }
-    }
 }
