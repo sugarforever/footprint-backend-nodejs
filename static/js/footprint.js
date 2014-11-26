@@ -1,5 +1,6 @@
 var footprint = function() {
 	this.cacheFootprints = new Array();
+	this.cacheLatLngFootprints = new Array();
 	this.cacheMarkers = new Array();
 	this.blueMarkers = new Array();
 }
@@ -13,6 +14,19 @@ footprint.prototype.initialize = function(footprints) {
 			}
 
 			this.cacheFootprints[value.date].push(value);
+
+			var lat = value.latitude;
+			var lng = value.longitude;
+
+			if (! (lat in this.cacheLatLngFootprints)) {
+				this.cacheLatLngFootprints[lat] = new Array();
+			}
+
+			if (! (lng in this.cacheLatLngFootprints[lat])) {
+				this.cacheLatLngFootprints[lat][lng] = new Array();
+			}
+
+			this.cacheLatLngFootprints[lat][lng].push(value);
 		};
 	}
 }
@@ -21,6 +35,14 @@ footprint.prototype.getCachedFootprintsByDate = function(date) {
 	var cached = new Array();
 	if (date in this.cacheFootprints) {
 		cached = this.cacheFootprints[date];
+	}
+	return cached;
+}
+
+footprint.prototype.getCachedFootprintsByLatLng = function(lat, lng) {
+	var cached = null;
+	if ((lat in this.cacheLatLngFootprints) && (lng in this.cacheLatLngFootprints[lat])) {
+		cached = this.cacheLatLngFootprints[lat][lng][0];
 	}
 	return cached;
 }
@@ -70,6 +92,46 @@ footprint.prototype.createFootprintJSONObject = function(latitude, longitude, ti
 		content: content
 	};
 	return json;
+}
+
+footprint.prototype.setMap = function(googleMap) {
+	this.googleMap = googleMap;
+}
+
+footprint.prototype.getMap = function() {
+	return this.googleMap;
+}
+
+footprint.prototype.displayFootprintBriefForMarkers = function(markers) {
+	if (isArray(markers)) {
+		for (var key in markers) {
+			var marker = markers[key];
+			this.displayFootprintBriefByMarker(marker);
+		}
+	}
+}
+
+footprint.prototype.displayFootprintBriefByMarker = function(marker) {
+	var latLng = marker.getPosition();
+	var lat = latLng.lat();
+	var lng = latLng.lng();
+
+	var footprint = this.getCachedFootprintsByLatLng(lat, lng);
+	
+	var contentString = '<div id="content">'+
+	'<div id="siteNotice">'+
+	'</div>'+
+	'<h1 id="firstHeading" class="firstHeading">' + footprint.date + '</h1>'+
+	'<div id="bodyContent">'+
+	'<p>' + footprint.content + '</p>'+
+	'</div>'+
+	'</div>';
+
+	if (this.uniqueInfoWindow == null) {
+		this.uniqueInfoWindow = new google.maps.InfoWindow({});
+	}
+	this.uniqueInfoWindow.setContent(contentString);
+	this.uniqueInfoWindow.open(map, marker);
 }
 
 function extendMapCanvasToFillHeight(selectorsExcluded, mapCanvasSelector) {
@@ -202,6 +264,7 @@ function generateTimelineSlotListView(listviewSelector, callback) {
             		for (var index = 0; index < cachedFootprints.length; ++index) {
             			var fp = cachedFootprints[index];
             			var markers = footprintInstance.setBlueCachedGoogleMarkersByLatitudeAndLongitude(fp.latitude,fp.longitude);
+            			footprintInstance.displayFootprintBriefForMarkers(markers);
             		}
             	});
             	$(div).append(a);

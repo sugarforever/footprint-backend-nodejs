@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="/css/footprint-main.css">
 </head>
 <body>
-    <div style="position: absolute; top: 100px; left: 100px;z-index:100; opacity: 1; border: solid 1px gray; font-size: 1em; padding: 2px; background-color: lightgray">
+    <div id="footprint-brief" style="position: absolute; top: 100px; left: 100px;z-index:100; opacity: 1; border: solid 1px gray; font-size: 1em; padding: 2px; background-color: lightgray">
     dfajlfldsjlfaldsfls
     </div>
     <div data-role="page" id="map-page">
@@ -89,6 +89,7 @@
                 disableDoubleClickZoom: true
             };
             map = new google.maps.Map(document.getElementById("map-canvas"), myOptions);
+            footprintInstance.setMap(map);
 
             google.maps.event.addListener(map, 'dblclick', function(event) {
                 setCurrentLocation(event.latLng.lat(), event.latLng.lng());
