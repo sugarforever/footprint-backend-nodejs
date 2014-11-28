@@ -41,6 +41,7 @@
                 </div>
             </div>
             <div data-role="popup" id="image-gallery-dialog" data-theme="a" data-corners="false">
+                <div id="dialog-confirm"></div>
                 <div data-role="main" class="ui-content" id="imageGallery">
                     <span id="gallery-brief"></span><a href="#" class="ui-btn-right ui-mini" id="delete-footprint">delete</a>
                     <p id="gallery-content"></p>
@@ -202,6 +203,26 @@
             })
 
             $("#delete-footprint").bind('click', function() {
+                $("#dialog-confirm").html("Are you going to delete this footprint?");
+                $("#dialog-confirm").dialog({
+                    resizable: false,
+                    modal: true,
+                    title: "Modal",
+                    height: 250,
+                    width: 400,
+                    buttons: {
+                        "Yes": function () {
+                            $(this).dialog('close');
+                            callback(true);
+                        },
+                            "No": function () {
+                            $(this).dialog('close');
+                            callback(false);
+                        }
+                    }
+                });
+
+                /*
                 var footprintId = $(this).attr('footprint-id');
                 $.ajax({
                     url: "/api/delete/" + footprintId,
@@ -215,10 +236,18 @@
                         $("#image-gallery-dialog").popup("close");
                     }
                 });
-
+                */
                 return false;
             });
         });
+
+    function callback(value) {
+        if (value) {
+            alert("Confirmed");
+        } else {
+            alert("Rejected");
+        }
+    }
     </script>
 </body>
 </html>
