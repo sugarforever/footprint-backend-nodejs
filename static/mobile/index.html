@@ -9,16 +9,16 @@
     <link rel="stylesheet" href="/css/footprint-main.css">
 </head>
 <body>
-    <div id="footprint-brief" style="position: absolute; top: 100px; left: 100px;z-index:100; opacity: 1; border: solid 1px gray; font-size: 1em; padding: 2px; background-color: lightgray">
+    <!--div id="footprint-brief" style="position: absolute; top: 100px; left: 100px;z-index:100; opacity: 1; border: solid 1px gray; font-size: 1em; padding: 2px; background-color: lightgray">
     dfajlfldsjlfaldsfls
-    </div>
+    </div-->
     <div data-role="page" id="map-page">
         <div data-role="panel" data-display="overlay" id="timeline-panel"> 
             <span>My timeline</span>
 
             <div id="timeline-slot-listview" data-role="collapsibleset"></div>
 
-            <a href="#pageone" data-rel="close" id="timeline-close" class="ui-btn ui-mini ui-btn-inline ui-shadow ui-corner-all ui-btn-a ui-icon-delete ui-btn-icon-left">Close</a>
+            <a href="#pageone" data-rel="close" id="timeline-close">Close</a>
         </div>
         <div data-role="header">
             <a href="#" class="ui-btn ui-icon-clock ui-btn-icon-left" id="popup-timeline-panel">&nbsp;</a>
@@ -40,9 +40,9 @@
                     <a id="marker-submit" href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b ui-icon-back ui-btn-icon-left" data-rel="back">Done</a>
                 </div>
             </div>
-            <div data-role="popup" id="image-gallery-dialog" data-theme="a">
+            <div data-role="popup" id="image-gallery-dialog" data-theme="a" data-corners="false">
                 <div data-role="main" class="ui-content" id="imageGallery">
-                    <span id="gallery-brief" style="margin-right:24px;"></span><a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>
+                    <span id="gallery-brief"></span><a href="#" class="ui-btn-right ui-mini" id="delete-footprint">delete</a>
                     <p id="gallery-content"></p>
                     <div id="gallery-images"></div>
                     <div class="clear"></div>
@@ -139,7 +139,6 @@
 
         $( document ).ready(function() {
             $("#image-gallery-dialog").resize(function() {
-                alert("resized");
                 //$("#image-gallery-dialog").css("margin: 0 auto;");
                 //$("#image-gallery-dialog").css("left: 0;");
             });
@@ -182,6 +181,7 @@
                     traditional: true,
                     data: jsonFootprint, 
                     success: function(data) {
+                        footprintInstance.cacheFootprint(data);
                     },
                     error: function(data) {
                     }
@@ -200,6 +200,24 @@
                 });
                 return false;    
             })
+
+            $("#delete-footprint").bind('click', function() {
+                var footprintId = $(this).attr('footprint-id');
+                $.ajax({
+                    url: "/api/delete/" + footprintId,
+                    type: "get",
+                    traditional: true,
+                    success: function(data) {
+                        $("#image-gallery-dialog").popup("close");
+                        footprintInstance.getGoogleMarkerByFootprintId(footprintId).setMap(null);
+                    },
+                    error: function(data) {
+                        $("#image-gallery-dialog").popup("close");
+                    }
+                });
+
+                return false;
+            });
         });
     </script>
 </body>

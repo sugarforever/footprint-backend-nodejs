@@ -17,10 +17,11 @@
 #timeline-close { margin-top: 24px; }
 /*#timeline-panel { width: 11em; }*/
 #timeline-slot-listview .block-style { margin-bottom: 4px;}
-
+#timeline-slot-listview p.timeslot-content { -webkit-margin-before: 0.5em;}
 .full-screen { width: 100%; height: 100%; padding: 0; }
 .block-style {display: block;}
 .mobile-dialog { margin: 2em;}
 #footprint-ui-title { margin: 0 10%; }
+#delete-footprint { -webkit-margin-before: 0.5em; }
 
 img.uploadedImage { margin-bottom:12px; display: block; }

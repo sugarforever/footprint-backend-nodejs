@@ -3,30 +3,15 @@ var footprint = function() {
 	this.cacheLatLngFootprints = new Array();
 	this.cacheMarkers = new Array();
 	this.blueMarkers = new Array();
+	this.cacheMarkersWithFootprintId = new Array();
 }
 
 footprint.prototype.initialize = function(footprints) {
 	if (isArray(footprints)) {
 		for (var index = 0; index < footprints.length; ++index) {
 			var value = footprints[index];
-			if (! (value.date in this.cacheFootprints)) {
-				this.cacheFootprints[value.date] = new Array();
-			}
-
-			this.cacheFootprints[value.date].push(value);
-
-			var lat = value.latitude;
-			var lng = value.longitude;
-
-			if (! (lat in this.cacheLatLngFootprints)) {
-				this.cacheLatLngFootprints[lat] = new Array();
-			}
-
-			if (! (lng in this.cacheLatLngFootprints[lat])) {
-				this.cacheLatLngFootprints[lat][lng] = new Array();
-			}
-
-			this.cacheLatLngFootprints[lat][lng].push(value);
+			
+			this.cacheFootprint(value);
 		};
 	}
 }
@@ -58,6 +43,41 @@ footprint.prototype.cacheGoogleMarker = function(latitude, longitude, marker) {
 	}
 
 	longitudeToMakers[longitude].push(marker);
+}
+
+footprint.prototype.cacheGoogleMarkerWithFootprintId = function(footprintId, marker) {
+	if (! (footprintId in this.cacheMarkersWithFootprintId)) {
+		this.cacheMarkersWithFootprintId[footprintId] = marker;
+	}
+}
+
+footprint.prototype.getGoogleMarkerByFootprintId = function(footprintId) {
+	return this.cacheMarkersWithFootprintId[footprintId];
+}
+
+footprint.prototype.cacheFootprint = function(footprint) {
+	if (footprint == null) {
+		return;
+	}
+
+	if (! (footprint.date in this.cacheFootprints)) {
+		this.cacheFootprints[footprint.date] = new Array();
+	}
+
+	this.cacheFootprints[footprint.date].push(footprint);
+
+	var lat = footprint.latitude;
+	var lng = footprint.longitude;
+
+	if (! (lat in this.cacheLatLngFootprints)) {
+		this.cacheLatLngFootprints[lat] = new Array();
+	}
+
+	if (! (lng in this.cacheLatLngFootprints[lat])) {
+		this.cacheLatLngFootprints[lat][lng] = new Array();
+	}
+
+	this.cacheLatLngFootprints[lat][lng].push(footprint);
 }
 
 footprint.prototype.cleanBlueMarkersArray = function() {
@@ -117,7 +137,7 @@ footprint.prototype.displayFootprintBriefByMarker = function(marker) {
 	var lng = latLng.lng();
 
 	var footprint = this.getCachedFootprintsByLatLng(lat, lng);
-	
+
 	var contentString = '<div id="content">'+
 	'<div id="siteNotice">'+
 	'</div>'+
@@ -132,6 +152,12 @@ footprint.prototype.displayFootprintBriefByMarker = function(marker) {
 	}
 	this.uniqueInfoWindow.setContent(contentString);
 	this.uniqueInfoWindow.open(map, marker);
+}
+
+footprint.prototype.closeInfoWindow = function() {
+	if (this.uniqueInfoWindow != null) {
+		this.uniqueInfoWindow.close();
+	}
 }
 
 function extendMapCanvasToFillHeight(selectorsExcluded, mapCanvasSelector) {
@@ -174,7 +200,10 @@ function createMarker(map, jsonFootprint) {
 		icon : 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
 	});
 
+	footprintInstance.cacheGoogleMarkerWithFootprintId(jsonFootprint._id, marker);
 	google.maps.event.addListener(marker, "click", function() {
+		footprintInstance.closeInfoWindow();
+
 		if (markerGreen != null) {
 			markerGreen.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
 		}
@@ -183,6 +212,7 @@ function createMarker(map, jsonFootprint) {
 		markerGreen = marker;
 
 		refreshGallery("#gallery-images", jsonFootprint.image, jsonFootprint.date + " " + jsonFootprint.content);
+		$("#delete-footprint").attr("footprint-id", jsonFootprint._id);
 		$("#gallery-brief").text(jsonFootprint.date);
 		$("#gallery-content").text(jsonFootprint.content);
 
@@ -245,8 +275,10 @@ function generateTimelineSlotListView(listviewSelector, callback) {
 			var div = $('<div data-role="collapsible"></div>');
 			$(div).append('<h3>' + date + '</h3>');
 			
-            $.each(value, function(key, time) {
-            	var a = $('<a href="#" class="block-style">' + time + '</a>');
+            $.each(value, function(key, timeAndContent) {
+            	var time = timeAndContent.time;
+            	var content = timeAndContent.content;
+            	var a = $('<a href="#" class="block-style">' + time + '</a><p class="timeslot-content">' + content + "</p>");
             	var dateTime = date + " " + time;
 
             	$(a).bind("click", function() {

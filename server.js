@@ -17,6 +17,8 @@ function main() {
     app.configure(function() {
         app.use(express.logger('dev'));
         app.use(express.bodyParser());
+        app.use(express.json({limit: '50mb'}));
+        app.use(express.urlencoded({limit: '50mb'}));
         app.use(express.static(__dirname + "/static"));
     });
  
@@ -34,6 +36,9 @@ function main() {
     });
     app.get('/api/get/:id', function(req, res) {
         footprintModule.findById(req, res);
+    });
+    app.get('/api/delete/:id', function(req, res) {
+        footprintModule.deleteFootprint(req, res);
     });
     app.get('/api/timeline/getTimelineSlots', function(req, res) {
         footprintModule.findTimelineSlots(req, res);

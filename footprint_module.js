@@ -74,17 +74,17 @@ exports.findFootprintsByDate = function(req, res) {
 exports.findTimelineSlots = function(req, res) {
     logger.debug("API - Find timeline slots.");
     db.collection('footprint', function(err, collection) {
-        collection.find({}, {date: true}).sort({isoDate: -1}).toArray(function(err, items) {
+        collection.find({}, {date: true, content: true}).sort({isoDate: -1}).toArray(function(err, items) {
             var returnedSlots = {};
             for (var key in items) {
                 var v = items[key].date;
-                console.log(v);
+                logger.debug("Date time: " + v);
                 var date = v.split(" ")[0];
                 var time = v.split(" ")[1];
                 if (!(date in returnedSlots)    ) {
                     returnedSlots[date] = new Array();
                 }
-                returnedSlots[date].push(time);
+                returnedSlots[date].push({time: time, content: items[key].content});
             };
             res.send(returnedSlots);
         });
@@ -125,6 +125,21 @@ exports.addFootprint = function(req, res) {
             } else {
                 console.log('Success: ' + JSON.stringify(result[0]));
                 res.send(result[0]);
+            }
+        });
+    });
+}
+
+exports.deleteFootprint = function(req, res) {
+    var _id = req.params.id;
+    logger.debug("Delete footprint with _id: " + _id);
+    db.collection('footprint', function(err, collection) {
+        collection.remove({'_id':new BSON.ObjectID(_id)}, {safe:true}, function(err, result) {
+            if (err) {
+                res.send({'error':'An error has occurred - ' + err});
+            } else {
+                logger.debug(result + ' document(s) deleted');
+                res.send(req.body);
             }
         });
     });
