@@ -34,10 +34,10 @@ exports.mkdirs = function(dirpath, mode, callback) {
 
 exports.createDirIfNotExists = function(dir, callback) {
     if (!path.existsSync(dir)) {
-        logger.debug(dir + " doesn't exist. It will be created.");
-        mkdirs(dir, 0777, function(error) {
+        console.log("DEBUG: " + dir + " doesn't exist. It will be created.");
+        module.exports.mkdirs(dir, 0777, function(error) {
             if (error != null) {
-                logger.error(error);
+                console.log("ERROR: " + error);
             }
 
             callback(error);
