@@ -165,7 +165,8 @@ footprint.prototype.dockBottom = function(docked) {
 	var heightOfWindow = $(window).height();
 
 	var offsetTop = heightOfWindow - heightOfDocked;
-	$(docked).css("top", offsetTop);
+
+	$(docked).css("top", offsetTop < 0 ? 0 : offsetTop);
 	$(docked).css("left", 0);
 }
 
@@ -226,19 +227,13 @@ function createMarker(map, jsonFootprint) {
 		$("#gallery-content").text(jsonFootprint.content);
 
 		jQuery(function($) {
-        	$(".swipebox").swipebox({
-        		afterClose: function() {
-        			footprintInstance.dockBottom($("#image-gallery-dialog-popup"));
-        		}
-        	});
+        	$(".swipebox").swipebox();
     	});
 
-		$( "#image-gallery-dialog" ).on( "beforeposition", function( event, ui ) {
+		/*$( "#image-gallery-dialog" ).on( "beforeposition", function( event, ui ) {
 			footprintInstance.dockBottom($("#image-gallery-dialog-popup"));
-		} );
-		$("#image-gallery-dialog").popup("open", {x: 1000000, y:1000000, afteropen: function(event, ui) {
-			footprintInstance.dockBottom($("#image-gallery-dialog-popup"));
-		}});
+		} );*/
+		$("#image-gallery-dialog").popup("open", {x: 1000000, y:1000000});
 	});
 	marker.setMap(map);
 	footprintInstance.cacheGoogleMarker(jsonFootprint.latitude, jsonFootprint.longitude, marker);

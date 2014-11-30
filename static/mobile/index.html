@@ -44,7 +44,7 @@
             <div data-role="popup" id="image-gallery-dialog" data-theme="a" data-corners="false">
                 <div data-role="header">
                     <a href="#" class="ui-btn-left ui-mini" id="edit-footprint">modify</a>
-                    <h4></h4>
+                    <h1><a href="#" data-rel="back">back</a></h1>
                     <a href="#" class="ui-btn-right ui-mini" id="delete-footprint">delete</a>
                 </div>
                 <div data-role="main" class="ui-content" id="imageGallery">
@@ -64,7 +64,7 @@
     <script src="http://code.jquery.com/ui/1.11.2/jquery-ui.min.js"></script>    
     <script src="js/jquery.fileupload.js"></script>
     <script src="js/jquery.datetimepicker.js"></script>
-    <script src="/js/jquery.swipebox.min.js"></script>
+    <script src="/js/jquery.swipebox.min.footprint.js"></script>
     <script src="/js/ios-orientationchange-fix.js"></script>
     <script src="../js/footprint.js"></script>
     <script type="text/javascript">
@@ -141,6 +141,7 @@
 
         $( window ).resize(function() {
             extendMapCanvasToFillHeight(['[data-role="header"]', '[data-role="footer"]'], "#map-canvas");
+            footprintInstance.dockBottom($("#image-gallery-dialog-popup"));
         });
 
         $( document ).ready(function() {
