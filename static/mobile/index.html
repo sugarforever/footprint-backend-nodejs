@@ -4,6 +4,7 @@
     <title>Footprint Mobile</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.4/jquery.mobile-1.4.4.min.css">
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.2/themes/black-tie/jquery-ui.css">
     <link rel="stylesheet" href="css/jquery.datetimepicker.css">
     <link rel="stylesheet" href="/css/swipebox.min.css">
     <link rel="stylesheet" href="/css/footprint-main.css">
@@ -41,9 +42,13 @@
                 </div>
             </div>
             <div data-role="popup" id="image-gallery-dialog" data-theme="a" data-corners="false">
-                <div id="dialog-confirm"></div>
+                <div data-role="header">
+                    <a href="#" class="ui-btn-left ui-mini" id="edit-footprint">modify</a>
+                    <h4></h4>
+                    <a href="#" class="ui-btn-right ui-mini" id="delete-footprint">delete</a>
+                </div>
                 <div data-role="main" class="ui-content" id="imageGallery">
-                    <span id="gallery-brief"></span><a href="#" class="ui-btn-right ui-mini" id="delete-footprint">delete</a>
+                    <h4 id="gallery-brief"></h4>
                     <p id="gallery-content"></p>
                     <div id="gallery-images"></div>
                     <div class="clear"></div>
@@ -203,26 +208,6 @@
             })
 
             $("#delete-footprint").bind('click', function() {
-                $("#dialog-confirm").html("Are you going to delete this footprint?");
-                $("#dialog-confirm").dialog({
-                    resizable: false,
-                    modal: true,
-                    title: "Modal",
-                    height: 250,
-                    width: 400,
-                    buttons: {
-                        "Yes": function () {
-                            $(this).dialog('close');
-                            callback(true);
-                        },
-                            "No": function () {
-                            $(this).dialog('close');
-                            callback(false);
-                        }
-                    }
-                });
-
-                /*
                 var footprintId = $(this).attr('footprint-id');
                 $.ajax({
                     url: "/api/delete/" + footprintId,
@@ -236,7 +221,6 @@
                         $("#image-gallery-dialog").popup("close");
                     }
                 });
-                */
                 return false;
             });
         });

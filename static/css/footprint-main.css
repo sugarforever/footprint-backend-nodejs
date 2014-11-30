@@ -13,7 +13,10 @@
 
 .gallery-image {
 }
-
+#imageGallery {
+	padding-left: 0.5em;
+	padding-right: 0.5em;
+}
 #timeline-close { margin-top: 24px; }
 /*#timeline-panel { width: 11em; }*/
 #timeline-slot-listview .block-style { margin-bottom: 4px;}
@@ -22,6 +25,12 @@
 .block-style {display: block;}
 .mobile-dialog { margin: 2em;}
 #footprint-ui-title { margin: 0 10%; }
-#delete-footprint { -webkit-margin-before: 0.5em; }
+#delete-footprint {
+	-webkit-margin-after: 1em;
+	-webkit-margin-start: 0.6em;
+}
+#image-gallery-dialog-popup {
+	min-width: 50%;
+}
 
 img.uploadedImage { margin-bottom:12px; display: block; }
