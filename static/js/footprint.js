@@ -160,6 +160,15 @@ footprint.prototype.closeInfoWindow = function() {
 	}
 }
 
+footprint.prototype.dockBottom = function(docked) {
+	var heightOfDocked = $(docked).height();
+	var heightOfWindow = $(window).height();
+
+	var offsetTop = heightOfWindow - heightOfDocked;
+	$(docked).css("top", offsetTop);
+	$(docked).css("left", 0);
+}
+
 function extendMapCanvasToFillHeight(selectorsExcluded, mapCanvasSelector) {
 	var pixelsExcluded = 0;
 	for (key in selectorsExcluded) {
@@ -217,10 +226,19 @@ function createMarker(map, jsonFootprint) {
 		$("#gallery-content").text(jsonFootprint.content);
 
 		jQuery(function($) {
-        	$(".swipebox").swipebox();
+        	$(".swipebox").swipebox({
+        		afterClose: function() {
+        			footprintInstance.dockBottom($("#image-gallery-dialog-popup"));
+        		}
+        	});
     	});
 
-		$("#image-gallery-dialog").popup("open");
+		$( "#image-gallery-dialog" ).on( "beforeposition", function( event, ui ) {
+			footprintInstance.dockBottom($("#image-gallery-dialog-popup"));
+		} );
+		$("#image-gallery-dialog").popup("open", {x: 1000000, y:1000000, afteropen: function(event, ui) {
+			footprintInstance.dockBottom($("#image-gallery-dialog-popup"));
+		}});
 	});
 	marker.setMap(map);
 	footprintInstance.cacheGoogleMarker(jsonFootprint.latitude, jsonFootprint.longitude, marker);
@@ -241,9 +259,10 @@ function appendImageURLTo(parentSelector, imageURL, title) {
     var thumbnailImage = imageURL.replace("assets", "thumbnail");
 	var img = $('<img class="gallery-image" />');
 	$(img).load(function() {
-		$("#image-gallery-dialog").position({
+		/*$("#image-gallery-dialog").position({
 		    of: $(window)
-		});
+		});*/
+		footprintInstance.dockBottom($("#image-gallery-dialog-popup"));
 	});
 	//$(img).attr("src", imageURL);
 	$(img).attr("src", thumbnailImage);

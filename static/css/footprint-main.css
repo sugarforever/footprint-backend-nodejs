@@ -6,12 +6,13 @@
 
 .gallery-image-div {
 	float: left;
-	height: 120px;
+	/*height: 120px;*/
 	margin-top: 4px;
 	margin-right: 4px;
 }
 
 .gallery-image {
+	max-width: 100%;
 }
 #imageGallery {
 	padding-left: 0.5em;
@@ -30,7 +31,14 @@
 	-webkit-margin-start: 0.6em;
 }
 #image-gallery-dialog-popup {
-	min-width: 50%;
+	/*min-width: 50%;
+	max-width: 80% !important;*/
+	width: 100%;
+	max-width: 100% !important;
 }
 
 img.uploadedImage { margin-bottom:12px; display: block; }
+
+.footer-panel {
+	visibility: hidden;
+}
