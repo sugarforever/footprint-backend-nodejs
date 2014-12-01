@@ -133,8 +133,8 @@ footprint.prototype.displayFootprintBriefForMarkers = function(markers) {
 
 footprint.prototype.displayFootprintBriefByMarker = function(marker) {
 	var latLng = marker.getPosition();
-	var lat = latLng.lat();
-	var lng = latLng.lng();
+	var lat = Math.round(latLng.lat() * 10000000) / 10000000;
+	var lng = Math.round(latLng.lng() * 10000000) / 10000000;
 
 	var footprint = this.getCachedFootprintsByLatLng(lat, lng);
 
