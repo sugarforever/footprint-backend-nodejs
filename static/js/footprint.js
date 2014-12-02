@@ -133,8 +133,8 @@ footprint.prototype.displayFootprintBriefForMarkers = function(markers) {
 
 footprint.prototype.displayFootprintBriefByMarker = function(marker) {
 	var latLng = marker.getPosition();
-	var lat = Math.round(latLng.lat() * 10000000) / 10000000;
-	var lng = Math.round(latLng.lng() * 10000000) / 10000000;
+	var lat = latLng.lat();
+	var lng = latLng.lng();
 
 	var footprint = this.getCachedFootprintsByLatLng(lat, lng);
 
@@ -144,11 +144,17 @@ footprint.prototype.displayFootprintBriefByMarker = function(marker) {
 	'<h1 id="firstHeading" class="firstHeading">' + footprint.date + '</h1>'+
 	'<div id="bodyContent">'+
 	'<p>' + footprint.content + '</p>'+
+	'<p><a href="#" id="view-more">View More</a></p>'+
 	'</div>'+
 	'</div>';
 
 	if (this.uniqueInfoWindow == null) {
 		this.uniqueInfoWindow = new google.maps.InfoWindow({});
+		google.maps.event.addListener(this.uniqueInfoWindow, 'domready', function () {
+			$("#view-more").bind("click", function() {
+				alert("view more");
+			});
+		});
 	}
 	this.uniqueInfoWindow.setContent(contentString);
 	this.uniqueInfoWindow.open(map, marker);
