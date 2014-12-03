@@ -103,6 +103,21 @@ footprint.prototype.setBlueCachedGoogleMarkersByLatitudeAndLongitude = function(
 	return markers;
 }
 
+footprint.prototype.setBlueCachedGoogleMarkerByFootprintId = function(footprintId) {
+	var marker = null;
+	if (footprintId in this.cacheMarkersWithFootprintId) {
+		marker = this.cacheMarkersWithFootprintId[footprintId];
+	}
+
+	this.cleanBlueMarkersArray();
+
+	if (marker != null) {
+        marker.setIcon('http://maps.google.com/mapfiles/ms/icons/blue-dot.png');
+        this.blueMarkers.push(marker);
+    }
+	return marker;
+}
+
 footprint.prototype.createFootprintJSONObject = function(latitude, longitude, timestamp, imageArray, content) {
 	var json = {
 		latitude: latitude,
@@ -138,7 +153,30 @@ footprint.prototype.displayFootprintBriefByMarker = function(marker) {
 
 	var footprint = this.getCachedFootprintsByLatLng(lat, lng);
 
-	var contentString = '<div id="content">'+
+	var contentString = '<div id="info-content">'+
+	'<div id="siteNotice">'+
+	'</div>'+
+	'<h1 id="firstHeading" class="firstHeading">' + footprint.date + '</h1>'+
+	'<div id="bodyContent">'+
+	'<p>' + footprint.content + '</p>'+
+	'<p><a href="#" id="view-more">View More</a></p>'+
+	'</div>'+
+	'</div>';
+
+	if (this.uniqueInfoWindow == null) {
+		this.uniqueInfoWindow = new google.maps.InfoWindow({});
+		google.maps.event.addListener(this.uniqueInfoWindow, 'domready', function () {
+			$("#view-more").bind("click", function() {
+				alert("view more");
+			});
+		});
+	}
+	this.uniqueInfoWindow.setContent(contentString);
+	this.uniqueInfoWindow.open(map, marker);
+}
+
+footprint.prototype.displayFootprintBriefByMarkerAndFootprint = function(marker, footprint) {
+	var contentString = '<div id="info-content">'+
 	'<div id="siteNotice">'+
 	'</div>'+
 	'<h1 id="firstHeading" class="firstHeading">' + footprint.date + '</h1>'+
@@ -315,8 +353,9 @@ function generateTimelineSlotListView(listviewSelector, callback) {
 
             		for (var index = 0; index < cachedFootprints.length; ++index) {
             			var fp = cachedFootprints[index];
-            			var markers = footprintInstance.setBlueCachedGoogleMarkersByLatitudeAndLongitude(fp.latitude,fp.longitude);
-            			footprintInstance.displayFootprintBriefForMarkers(markers);
+            			//var markers = footprintInstance.setBlueCachedGoogleMarkersByLatitudeAndLongitude(fp.latitude,fp.longitude);
+            			var marker = footprintInstance.setBlueCachedGoogleMarkerByFootprintId(fp._id);
+            			footprintInstance.displayFootprintBriefByMarkerAndFootprint(marker, fp);
             		}
             	});
             	$(div).append(a);

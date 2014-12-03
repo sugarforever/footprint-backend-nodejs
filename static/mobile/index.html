@@ -183,7 +183,6 @@
                 });
 
                 var jsonFootprint = footprintInstance.createFootprintJSONObject(currentLatitude, currentLongitude, $("#date").val(), imageArray, $("#content").val());
-                createMarker(map, jsonFootprint);
 
                 $.ajax({
                     url: "/api/addFootprint",
@@ -192,6 +191,7 @@
                     data: jsonFootprint, 
                     success: function(data) {
                         footprintInstance.cacheFootprint(data);
+                        createMarker(map, data);
                     },
                     error: function(data) {
                     }
