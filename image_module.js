@@ -1,6 +1,6 @@
 var config = require("./configuration.json")
 var lwip = require("lwip");
-var step = require("Step");
+var step = require("step");
 var logger = require("./logging_module").getLogger(__filename);
 
 exports.resizeImage = function(rawImagePath, resizedImagePath, targetHeight, onResizedCallback) {

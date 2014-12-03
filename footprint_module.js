@@ -5,7 +5,7 @@ var path = require("path");
 var config = require("./configuration.json");
 var md5 = require("MD5");
 var imageModule = require("./image_module");
-var step = require("Step");
+var step = require("step");
 var logger = require("./logging_module").getLogger(__filename);
 
 var Server = mongo.Server,
