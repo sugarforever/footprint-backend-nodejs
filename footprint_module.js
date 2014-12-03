@@ -173,7 +173,7 @@ exports.uploadImage = function(req, res) {
             function resize() {
                 imageModule.resizeImage(assetsFileName, thumbnailFileName, config.thumbnailHeight, function(error) {
                     if (error != null) {
-                        logger.error(err);
+                        logger.error(error);
                     }
                 }); 
             }

@@ -188,12 +188,18 @@ footprint.prototype.displayFootprintBriefByMarkerAndFootprint = function(marker,
 
 	if (this.uniqueInfoWindow == null) {
 		this.uniqueInfoWindow = new google.maps.InfoWindow({});
-		google.maps.event.addListener(this.uniqueInfoWindow, 'domready', function () {
-			$("#view-more").bind("click", function() {
-				alert("view more");
-			});
-		});
 	}
+
+	if (this.infoWindowListener != null) {
+		google.maps.event.removeListener(this.infoWindowListener);
+	}
+
+	this.infoWindowListener = google.maps.event.addListener(this.uniqueInfoWindow, 'domready', function () {
+		$("#view-more").bind("click", function() {
+			google.maps.event.trigger(marker, "click");
+		});
+	});
+
 	this.uniqueInfoWindow.setContent(contentString);
 	this.uniqueInfoWindow.open(map, marker);
 }
