@@ -177,17 +177,13 @@ footprint.prototype.displayFootprintBriefByMarker = function(marker) {
 
 footprint.prototype.displayFootprintBriefByMarkerAndFootprint = function(marker, footprint) {
 	var contentString = '<div id="info-content">'+
-	'<div id="siteNotice">'+
-	'</div>'+
 	'<h1 id="firstHeading" class="firstHeading">' + footprint.date + '</h1>'+
-	'<div id="bodyContent">'+
 	'<p>' + footprint.content + '</p>'+
 	'<p><a href="#" id="view-more">View More</a></p>'+
-	'</div>'+
 	'</div>';
 
 	if (this.uniqueInfoWindow == null) {
-		this.uniqueInfoWindow = new google.maps.InfoWindow({});
+		this.uniqueInfoWindow = new google.maps.InfoWindow({maxWidth: 300});
 	}
 
 	if (this.infoWindowListener != null) {
@@ -202,6 +198,7 @@ footprint.prototype.displayFootprintBriefByMarkerAndFootprint = function(marker,
 
 	this.uniqueInfoWindow.setContent(contentString);
 	this.uniqueInfoWindow.open(map, marker);
+
 }
 
 footprint.prototype.closeInfoWindow = function() {
