@@ -177,7 +177,7 @@ footprint.prototype.displayFootprintBriefByMarker = function(marker) {
 
 footprint.prototype.displayFootprintBriefByMarkerAndFootprint = function(marker, footprint) {
 	var contentString = '<div id="info-content">'+
-	'<h1 id="firstHeading" class="firstHeading">' + footprint.date + '</h1>'+
+	'<h4 id="firstHeading" class="firstHeading">' + footprint.date + '</h4>'+
 	'<p>' + footprint.content + '</p>'+
 	'<p><a href="#" id="view-more">View More</a></p>'+
 	'</div>';
