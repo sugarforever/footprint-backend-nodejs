@@ -156,7 +156,7 @@ exports.uploadImage = function(req, res) {
     for (var key in fileList) {
         var file = fileList[key];
         var nameExt = getFileNameAndExtension(file.originalFilename);
-        var encodedFilename = md5(nameExt.fileName) + nameExt.ext;
+        var encodedFilename = getEncodedFileName(file.path, nameExt.ext);
 
         logger.debug("File path: " + file.path);
         var newPath = config.assetsPath + encodedFilename;
@@ -183,6 +183,10 @@ exports.uploadImage = function(req, res) {
     }
     logger.debug("Uploaded image: " + assetsImage);
     res.send({imageURL: assetsImage});
+}
+
+function getEncodedFileName(uploadedFilePath, fileExt) {
+    return module.exports.getCurrentUser() + new Date().getTime() + md5(uploadedFilePath) + fileExt;
 }
 
 function getFileNameAndExtension(fileName) {
@@ -230,4 +234,8 @@ exports.deleteWine = function(req, res) {
             }
         });
     });
+}
+
+exports.getCurrentUser = function(req) {
+    return "";
 }
