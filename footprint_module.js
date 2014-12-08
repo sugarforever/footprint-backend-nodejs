@@ -12,17 +12,17 @@ var Server = mongo.Server,
     Db = mongo.Db,
     BSON = mongo.BSONPure;
 
-var server = new Server("localhost", 27017, {auto_reconnect: true});
+var server = new Server(config.mongo.server, config.mongo.port, {auto_reconnect: config.mongo.autoReconnect});
 var db;
 
 exports.initializeDatabase = function(callback) {
-    db = new Db("footprint-db", server);
+    db = new Db(config.mongo.database, server);
     db.open(function(err, db) {
         if(!err) {
-            logger.debug("Connected to 'footprint-db' database");
-            db.collection('footprint', {strict:true}, function(err, collection) {
+            logger.debug("Connected to '" + config.mongo.database + "' database");
+            db.collection(config.mongo.footprintCollection, {strict:true}, function(err, collection) {
                 if (err) {
-                    logger.error("The 'footprint' collection doesn't exist. Creating it with sample data...");
+                    logger.error("The '" + config.mongo.footprintCollection + "' collection doesn't exist.");
                     //populateDB();
                 }
             });
@@ -37,7 +37,7 @@ exports.initializeDatabase = function(callback) {
 exports.findById = function(req, res) {
     var id = req.params.id;
     logger.debug('Retrieving footprint: ' + id);
-    db.collection('footprint', function(err, collection) {
+    db.collection(config.mongo.footprintCollection, function(err, collection) {
         collection.findOne({'_id':new BSON.ObjectID(id)}, function(err, item) {
             res.send(item);
         });
@@ -46,8 +46,8 @@ exports.findById = function(req, res) {
  
 exports.findAll = function(req, res) {
     logger.debug("API - Find all footprints.");
-    db.collection('footprint', function(err, collection) {
-        collection.find().toArray(function(err, items) {
+    db.collection(config.mongo.footprintCollection, function(err, collection) {
+        collection.find({deleted: {$ne: true}}).toArray(function(err, items) {
             res.send(items);
         });
     });
@@ -73,8 +73,8 @@ exports.findFootprintsByDate = function(req, res) {
 
 exports.findTimelineSlots = function(req, res) {
     logger.debug("API - Find timeline slots.");
-    db.collection('footprint', function(err, collection) {
-        collection.find({}, {date: true, content: true}).sort({isoDate: -1}).toArray(function(err, items) {
+    db.collection(config.mongo.footprintCollection, function(err, collection) {
+        collection.find({deleted: {$ne: true}}, {date: true, content: true}).sort({isoDate: -1}).toArray(function(err, items) {
             var returnedSlots = {};
             for (var key in items) {
                 var v = items[key].date;
@@ -95,7 +95,7 @@ exports.findGeoCenterByDateTime = function(req, res) {
     var datetime = url.parse(req.url, true).query.datetime;
     logger.debug("API - Find GEO center by date and time: " + datetime + ".");
 
-    db.collection('footprint', function(err, collection) {
+    db.collection(config.mongo.footprintCollection, function(err, collection) {
         collection.find({date: datetime}, {latitude: true, longitude: true}).toArray(function(err, items) {
             var first = {};
             logger.debug(items.length + " footprint items found at " + datetime);
@@ -111,7 +111,7 @@ exports.addFootprint = function(req, res) {
     var footprint = req.body;
     var regexp = /(....)\-(..)\-(..) (..):(..)/;
     logger.debug('Adding footprint: ' + JSON.stringify(footprint));
-    db.collection('footprint', function(err, collection) {
+    db.collection(config.mongo.footprintCollection, function(err, collection) {
         var matches = regexp.exec(footprint.date);
 
         if (regexp.test(footprint.date)) {
@@ -133,12 +133,14 @@ exports.addFootprint = function(req, res) {
 exports.deleteFootprint = function(req, res) {
     var _id = req.params.id;
     logger.debug("Delete footprint with _id: " + _id);
-    db.collection('footprint', function(err, collection) {
-        collection.remove({'_id':new BSON.ObjectID(_id)}, {safe:true}, function(err, result) {
+    db.collection(config.mongo.footprintCollection, function(err, collection) {
+        collection.update({'_id':new BSON.ObjectID(_id)}, { $set:
+                { deleted:true }
+            }, function(err, result) {
             if (err) {
                 res.send({'error':'An error has occurred - ' + err});
             } else {
-                logger.debug(result + ' document(s) deleted');
+                logger.debug(result + ' document(s) updated with setting deleted as true.');
                 res.send(req.body);
             }
         });

@@ -3,5 +3,12 @@
 	"logFile" : "/var/data/footprint-backend/log/footprint.log",
 	"assetsPath" : "/var/data/footprint-backend/assets/",
 	"thumbnailPath" : "/var/data/footprint-backend/thumbnail/",
-    "thumbnailHeight" : 128
+    "thumbnailHeight" : 128,
+    "mongo": {
+    	"server": "localhost",
+    	"port": 27017,
+    	"autoReconnect": true,
+    	"database": "footprint-db",
+    	"footprintCollection": "footprint"
+    }
 }
