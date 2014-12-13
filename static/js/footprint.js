@@ -158,7 +158,7 @@ footprint.prototype.getFirstIcon = function(footprint) {
 }
 
 footprint.prototype.displayFootprintBriefByMarkerAndFootprint = function(marker, footprint) {
-	var firstIcon = getFirstIcon(footprint);
+	var firstIcon = self.getFirstIcon(footprint);
 
 	var contentString = '<div id="info-content">'+
 	'<h4 id="firstHeading" class="firstHeading">' + footprint.date + '</h4>'+
