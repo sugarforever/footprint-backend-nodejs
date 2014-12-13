@@ -4,6 +4,8 @@ var footprint = function() {
 	this.cacheMarkers = new Array();
 	this.blueMarkers = new Array();
 	this.cacheMarkersWithFootprintId = new Array();
+
+	self = this;
 }
 
 footprint.prototype.initialize = function(footprints) {
@@ -131,21 +133,32 @@ footprint.prototype.createFootprintJSONObject = function(latitude, longitude, ti
 
 footprint.prototype.setMap = function(googleMap) {
 	this.googleMap = googleMap;
+	this.projection = this.googleMap.getProjection();
 }
 
 footprint.prototype.getMap = function() {
 	return this.googleMap;
 }
 
-footprint.prototype.displayFootprintBriefByMarkerAndFootprint = function(marker, footprint) {
+footprint.prototype.getProjection = function() {
+	return this.projection;
+}
+
+footprint.prototype.getFirstIcon = function(footprint) {
 	var firstIcon = null;
-	if (footprint.image != null) {
+	if (footprint != null && footprint.image != null) {
 		if (isArray(footprint.image)) {
 			firstIcon = footprint.image[0].replace("assets", "icon");
 		} else {
 			firstIcon = footprint.image.replace("assets", "icon");
 		}
 	}
+
+	return firstIcon;
+}
+
+footprint.prototype.displayFootprintBriefByMarkerAndFootprint = function(marker, footprint) {
+	var firstIcon = getFirstIcon(footprint);
 
 	var contentString = '<div id="info-content">'+
 	'<h4 id="firstHeading" class="firstHeading">' + footprint.date + '</h4>'+
@@ -156,14 +169,7 @@ footprint.prototype.displayFootprintBriefByMarkerAndFootprint = function(marker,
 		'<p><image src="' + firstIcon + '"/></p>';
 	}
 
-<<<<<<< HEAD
 	contentString = contentString +
-=======
-footprint.prototype.displayFootprintBriefByMarkerAndFootprint = function(marker, footprint) {
-	var contentString = '<div id="info-content">'+
-	'<h4 id="firstHeading" class="firstHeading">' + footprint.date + '</h4>'+
-	'<p>' + footprint.content + '</p>'+
->>>>>>> ae548c4efb689b312d597723d2ef60641c4c795d
 	'<p><a href="#" id="view-more">View More</a></p>'+
 	'</div>';
 
@@ -270,6 +276,31 @@ function createMarker(map, jsonFootprint) {
 	});
 	marker.setMap(map);
 	footprintInstance.cacheGoogleMarker(jsonFootprint.latitude, jsonFootprint.longitude, marker);
+
+    //alert(fromLatLngToPixel(myLatlng, map, footprintInstance.getProjection()));
+}
+
+function fromLatLngToPixel(latLng, map, projection) {
+	var numTiles = 1 << map.getZoom();
+	var worldCoordinate = projection.fromLatLngToPoint(latLng);
+	var pixelCoordinate = new google.maps.Point(
+	        worldCoordinate.x * numTiles,
+	        worldCoordinate.y * numTiles);
+
+	var topLeft = new google.maps.LatLng(
+	    map.getBounds().getNorthEast().lat(),
+	    map.getBounds().getSouthWest().lng()
+	);
+
+	var topLeftWorldCoordinate = projection.fromLatLngToPoint(topLeft);
+	var topLeftPixelCoordinate = new google.maps.Point(
+	        topLeftWorldCoordinate.x * numTiles,
+	        topLeftWorldCoordinate.y * numTiles);
+
+	return new google.maps.Point(
+	        pixelCoordinate.x - topLeftPixelCoordinate.x,
+	        pixelCoordinate.y - topLeftPixelCoordinate.y
+	)
 }
 
 function refreshGallery(galleryDivSelector, imageArray, title) {
