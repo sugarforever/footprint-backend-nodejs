@@ -29,6 +29,10 @@ function main() {
         app.use(express.static(__dirname + "/static"));
     });
  
+    app.locals({
+        title: 'Extended Express Example'
+    });
+    
     app.get('/assets/:name', function(req, res) {
         console.log("Requesting asset " + req.params.name);
         res.sendfile(config.assetsPath + req.params.name);

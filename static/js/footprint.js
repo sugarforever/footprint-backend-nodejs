@@ -4,7 +4,7 @@ var footprint = function() {
 	this.cacheMarkers = new Array();
 	this.blueMarkers = new Array();
 	this.cacheMarkersWithFootprintId = new Array();
-
+	this.maxContentInfoLength = 300;
 	self = this;
 }
 
@@ -160,9 +160,14 @@ footprint.prototype.getFirstIcon = function(footprint) {
 footprint.prototype.displayFootprintBriefByMarkerAndFootprint = function(marker, footprint) {
 	var firstIcon = self.getFirstIcon(footprint);
 
+	var truncatedContent = footprint.content;
+	if (truncatedContent.length > self.maxContentInfoLength) {
+		truncatedContent = truncatedContent.substr(0, self.maxContentInfoLength - 3) + "...";
+	}
+
 	var contentString = '<div id="info-content">'+
 	'<h4 id="firstHeading" class="firstHeading">' + footprint.date + '</h4>'+
-	'<pre>' + footprint.content + '</pre>';
+	'<pre>' + truncatedContent + '</pre>';
 
 	if (firstIcon != null) {
 		contentString = contentString +
