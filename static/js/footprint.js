@@ -137,53 +137,32 @@ footprint.prototype.getMap = function() {
 	return this.googleMap;
 }
 
-footprint.prototype.displayFootprintBriefForMarkers = function(markers) {
-	if (isArray(markers)) {
-		for (var key in markers) {
-			var marker = markers[key];
-			this.displayFootprintBriefByMarker(marker);
+footprint.prototype.displayFootprintBriefByMarkerAndFootprint = function(marker, footprint) {
+	var firstIcon = null;
+	if (footprint.image != null) {
+		if (isArray(footprint.image)) {
+			firstIcon = footprint.image[0].replace("assets", "icon");
+		} else {
+			firstIcon = footprint.image.replace("assets", "icon");
 		}
 	}
-}
 
-footprint.prototype.displayFootprintBriefByMarker = function(marker) {
-	var latLng = marker.getPosition();
-	var lat = latLng.lat();
-	var lng = latLng.lng();
-
-	var footprint = this.getCachedFootprintsByLatLng(lat, lng);
-
-	var contentString = '<div id="info-content">'+
-	'<div id="siteNotice">'+
-	'</div>'+
-	'<h1 id="firstHeading" class="firstHeading">' + footprint.date + '</h1>'+
-	'<div id="bodyContent">'+
-	'<p>' + footprint.content + '</p>'+
-	'<p><a href="#" id="view-more">View More</a></p>'+
-	'</div>'+
-	'</div>';
-
-	if (this.uniqueInfoWindow == null) {
-		this.uniqueInfoWindow = new google.maps.InfoWindow({});
-		google.maps.event.addListener(this.uniqueInfoWindow, 'domready', function () {
-			$("#view-more").bind("click", function() {
-				alert("view more");
-			});
-		});
-	}
-	this.uniqueInfoWindow.setContent(contentString);
-	this.uniqueInfoWindow.open(map, marker);
-}
-
-footprint.prototype.displayFootprintBriefByMarkerAndFootprint = function(marker, footprint) {
 	var contentString = '<div id="info-content">'+
 	'<h4 id="firstHeading" class="firstHeading">' + footprint.date + '</h4>'+
-	'<p>' + footprint.content + '</p>'+
+	'<p>' + footprint.content + '</p>';
+
+	if (firstIcon != null) {
+		contentString = contentString +
+		'<p><image src="' + firstIcon + '"/></p>';
+	}
+
+	contentString = contentString +
 	'<p><a href="#" id="view-more">View More</a></p>'+
 	'</div>';
 
 	if (this.uniqueInfoWindow == null) {
-		this.uniqueInfoWindow = new google.maps.InfoWindow({maxWidth: 300});
+		//this.uniqueInfoWindow = new google.maps.InfoWindow({maxWidth: 300});
+		this.uniqueInfoWindow = new google.maps.InfoWindow();
 	}
 
 	if (this.infoWindowListener != null) {

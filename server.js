@@ -5,8 +5,15 @@ var footprintModule = require("./footprint_module");
 var ioutil = require("./ioutil_module");
 var logger = require("./logging_module").getLogger(__filename);
 
-ioutil.createDirIfNotExists(config.assetsPath, function(error) {});
-ioutil.createDirIfNotExists(config.thumbnailPath, function(error) {});
+ioutil.createDirIfNotExists(config.assetsPath, function(error) {
+    logger.error(error);
+});
+ioutil.createDirIfNotExists(config.thumbnailPath, function(error) {
+    logger.error(error);
+});
+ioutil.createDirIfNotExists(config.iconPath, function(error) {
+    logger.error(error);
+});
 
 footprintModule.initializeDatabase(main);
 
@@ -29,6 +36,10 @@ function main() {
     app.get('/thumbnail/:name', function(req, res) {
         console.log("Requesting thumbnail" + req.params.name);
         res.sendfile(config.thumbnailPath + req.params.name);
+    });
+    app.get('/icon/:name', function(req, res) {
+        console.log("Requesting icon" + req.params.name);
+        res.sendfile(config.iconPath + req.params.name);
     });
 
     app.get('/api/get', function(req, res) {
