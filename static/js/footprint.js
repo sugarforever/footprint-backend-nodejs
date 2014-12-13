@@ -156,7 +156,14 @@ footprint.prototype.displayFootprintBriefByMarkerAndFootprint = function(marker,
 		'<p><image src="' + firstIcon + '"/></p>';
 	}
 
+<<<<<<< HEAD
 	contentString = contentString +
+=======
+footprint.prototype.displayFootprintBriefByMarkerAndFootprint = function(marker, footprint) {
+	var contentString = '<div id="info-content">'+
+	'<h4 id="firstHeading" class="firstHeading">' + footprint.date + '</h4>'+
+	'<p>' + footprint.content + '</p>'+
+>>>>>>> ae548c4efb689b312d597723d2ef60641c4c795d
 	'<p><a href="#" id="view-more">View More</a></p>'+
 	'</div>';
 
