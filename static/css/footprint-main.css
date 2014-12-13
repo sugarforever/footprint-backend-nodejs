@@ -1,7 +1,7 @@
 @charset "UTF-8";
 
-p {
-	word-break:break-all; 
+p, pre {
+	word-break: break-word; 
 }
 .clear {
 	clear: both;

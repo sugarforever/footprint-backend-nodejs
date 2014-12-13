@@ -162,7 +162,7 @@ footprint.prototype.displayFootprintBriefByMarkerAndFootprint = function(marker,
 
 	var contentString = '<div id="info-content">'+
 	'<h4 id="firstHeading" class="firstHeading">' + footprint.date + '</h4>'+
-	'<p>' + footprint.content + '</p>';
+	'<pre>' + footprint.content + '</pre>';
 
 	if (firstIcon != null) {
 		contentString = contentString +
