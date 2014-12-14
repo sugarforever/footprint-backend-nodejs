@@ -1,5 +1,9 @@
 @charset "UTF-8";
 
+body, pre, input, .ui-btn {
+	font-family: 'lucida grande',tahoma,verdana,arial,sans-serif
+}
+
 p, pre {
 	word-break: break-word; 
 }
@@ -23,7 +27,6 @@ p, pre {
 	padding-right: 0.5em;
 }
 #timeline-close { margin-top: 24px; }
-/*#timeline-panel { width: 11em; }*/
 #timeline-slot-listview .block-style { margin-bottom: 4px;}
 #timeline-slot-listview p.timeslot-content { -webkit-margin-before: 0.5em;}
 .full-screen { width: 100%; height: 100%; padding: 0; }
