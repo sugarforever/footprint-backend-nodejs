@@ -326,6 +326,10 @@ function appendImageURLTo(parentSelector, imageURL, title) {
 		/*$("#image-gallery-dialog").position({
 		    of: $(window)
 		});*/
+		//var imgWidth = $(img).width();
+		var imgHeight = $(img).height();
+		$(img).css("margin-top", (128 - imgHeight) / 2);
+
 		footprintInstance.dockBottom($("#image-gallery-dialog-popup"));
 	});
 	//$(img).attr("src", imageURL);

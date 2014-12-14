@@ -9,9 +9,10 @@ p, pre {
 
 .gallery-image-div {
 	float: left;
-	/*height: 120px;*/
-	margin-top: 4px;
-	margin-right: 4px;
+	height: 128px;
+	width: 128px;
+	margin: 2px;
+	text-align: center;
 }
 
 .gallery-image {
