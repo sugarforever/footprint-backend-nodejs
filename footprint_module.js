@@ -157,7 +157,7 @@ exports.uploadImage = function(req, res) {
 
     for (var key in fileList) {
         var file = fileList[key];
-        var nameExt = getFileNameAndExtension(file.originalFilename);
+        var nameExt = module.exports.getFileNameAndExtension(file.originalFilename);
         var encodedFilename = getEncodedFileName(file.path, nameExt.ext);
 
         logger.debug("File path: " + file.path);
@@ -188,10 +188,10 @@ exports.uploadImage = function(req, res) {
 }
 
 function getEncodedFileName(uploadedFilePath, fileExt) {
-    return module.exports.getCurrentUser() + new Date().getTime() + md5(uploadedFilePath) + fileExt;
+    return module.exports.getCurrentUser() + new Date().getTime() + md5(uploadedFilePath) + "." + fileExt;
 }
 
-function getFileNameAndExtension(fileName) {
+exports.getFileNameAndExtension = function(fileName) {
     var fileNameAndExt = {};
     var lastDotPos = fileName.lastIndexOf(".");
     if (lastDotPos == -1) {
@@ -199,7 +199,7 @@ function getFileNameAndExtension(fileName) {
         fileNameAndExt.ext = "";
     } else {
         fileNameAndExt.fileName = fileName.substring(0, lastDotPos);
-        fileNameAndExt.ext = fileName.substring(lastDotPos);
+        fileNameAndExt.ext = fileName.substring(lastDotPos + 1);
     }
 
     return fileNameAndExt;
