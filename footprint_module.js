@@ -170,10 +170,17 @@ exports.uploadImage = function(req, res) {
 
         var assetsFileName = newPath;
         var thumbnailFileName = config.thumbnailPath + encodedFilename;
+        var iconFileName = config.iconPath + encodedFilename;
         logger.debug("Thumnail path: " + thumbnailFileName);
+        logger.debug("Icon path: " + iconFileName);
         step(
-            function resize() {
+            function resizeForThumbnail() {
                 imageModule.resizeImage(assetsFileName, thumbnailFileName, config.thumbnailHeight, function(error) {
+                    if (error != null) {
+                        logger.error(error);
+                    }
+                });
+                imageModule.resizeImage(assetsFileName, iconFileName, config.iconHeight, function(error) {
                     if (error != null) {
                         logger.error(error);
                     }

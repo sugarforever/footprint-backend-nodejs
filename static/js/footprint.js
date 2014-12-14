@@ -4,6 +4,8 @@ var footprint = function() {
 	this.cacheMarkers = new Array();
 	this.blueMarkers = new Array();
 	this.cacheMarkersWithFootprintId = new Array();
+	this.maxContentInfoLength = 300;
+	self = this;
 }
 
 footprint.prototype.initialize = function(footprints) {
@@ -131,59 +133,54 @@ footprint.prototype.createFootprintJSONObject = function(latitude, longitude, ti
 
 footprint.prototype.setMap = function(googleMap) {
 	this.googleMap = googleMap;
+	this.projection = this.googleMap.getProjection();
 }
 
 footprint.prototype.getMap = function() {
 	return this.googleMap;
 }
 
-footprint.prototype.displayFootprintBriefForMarkers = function(markers) {
-	if (isArray(markers)) {
-		for (var key in markers) {
-			var marker = markers[key];
-			this.displayFootprintBriefByMarker(marker);
-		}
-	}
+footprint.prototype.getProjection = function() {
+	return this.projection;
 }
 
-footprint.prototype.displayFootprintBriefByMarker = function(marker) {
-	var latLng = marker.getPosition();
-	var lat = latLng.lat();
-	var lng = latLng.lng();
-
-	var footprint = this.getCachedFootprintsByLatLng(lat, lng);
-
-	var contentString = '<div id="info-content">'+
-	'<div id="siteNotice">'+
-	'</div>'+
-	'<h1 id="firstHeading" class="firstHeading">' + footprint.date + '</h1>'+
-	'<div id="bodyContent">'+
-	'<p>' + footprint.content + '</p>'+
-	'<p><a href="#" id="view-more">View More</a></p>'+
-	'</div>'+
-	'</div>';
-
-	if (this.uniqueInfoWindow == null) {
-		this.uniqueInfoWindow = new google.maps.InfoWindow({});
-		google.maps.event.addListener(this.uniqueInfoWindow, 'domready', function () {
-			$("#view-more").bind("click", function() {
-				alert("view more");
-			});
-		});
+footprint.prototype.getFirstIcon = function(footprint) {
+	var firstIcon = null;
+	if (footprint != null && footprint.image != null) {
+		if (isArray(footprint.image)) {
+			firstIcon = footprint.image[0].replace("assets", "icon");
+		} else {
+			firstIcon = footprint.image.replace("assets", "icon");
+		}
 	}
-	this.uniqueInfoWindow.setContent(contentString);
-	this.uniqueInfoWindow.open(map, marker);
+
+	return firstIcon;
 }
 
 footprint.prototype.displayFootprintBriefByMarkerAndFootprint = function(marker, footprint) {
+	var firstIcon = self.getFirstIcon(footprint);
+
+	var truncatedContent = footprint.content;
+	if (truncatedContent.length > self.maxContentInfoLength) {
+		truncatedContent = truncatedContent.substr(0, self.maxContentInfoLength - 3) + "...";
+	}
+
 	var contentString = '<div id="info-content">'+
 	'<h4 id="firstHeading" class="firstHeading">' + footprint.date + '</h4>'+
-	'<p>' + footprint.content + '</p>'+
+	'<pre>' + truncatedContent + '</pre>';
+
+	if (firstIcon != null) {
+		contentString = contentString +
+		'<p><image src="' + firstIcon + '"/></p>';
+	}
+
+	contentString = contentString +
 	'<p><a href="#" id="view-more">View More</a></p>'+
 	'</div>';
 
 	if (this.uniqueInfoWindow == null) {
-		this.uniqueInfoWindow = new google.maps.InfoWindow({maxWidth: 300});
+		//this.uniqueInfoWindow = new google.maps.InfoWindow({maxWidth: 300});
+		this.uniqueInfoWindow = new google.maps.InfoWindow();
 	}
 
 	if (this.infoWindowListener != null) {
@@ -284,6 +281,31 @@ function createMarker(map, jsonFootprint) {
 	});
 	marker.setMap(map);
 	footprintInstance.cacheGoogleMarker(jsonFootprint.latitude, jsonFootprint.longitude, marker);
+
+    //alert(fromLatLngToPixel(myLatlng, map, footprintInstance.getProjection()));
+}
+
+function fromLatLngToPixel(latLng, map, projection) {
+	var numTiles = 1 << map.getZoom();
+	var worldCoordinate = projection.fromLatLngToPoint(latLng);
+	var pixelCoordinate = new google.maps.Point(
+	        worldCoordinate.x * numTiles,
+	        worldCoordinate.y * numTiles);
+
+	var topLeft = new google.maps.LatLng(
+	    map.getBounds().getNorthEast().lat(),
+	    map.getBounds().getSouthWest().lng()
+	);
+
+	var topLeftWorldCoordinate = projection.fromLatLngToPoint(topLeft);
+	var topLeftPixelCoordinate = new google.maps.Point(
+	        topLeftWorldCoordinate.x * numTiles,
+	        topLeftWorldCoordinate.y * numTiles);
+
+	return new google.maps.Point(
+	        pixelCoordinate.x - topLeftPixelCoordinate.x,
+	        pixelCoordinate.y - topLeftPixelCoordinate.y
+	)
 }
 
 function refreshGallery(galleryDivSelector, imageArray, title) {

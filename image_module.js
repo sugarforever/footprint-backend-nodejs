@@ -13,13 +13,17 @@ exports.resizeImage = function(rawImagePath, resizedImagePath, targetHeight, onR
         var rawWidth = rawImage.width();
         var rawHeight = rawImage.height();
 
-        console.log("Raw size: " + rawWidth + "x" + rawHeight);
-        var scale = targetHeight / rawHeight;
-        console.log("Scale factor: " + scale);
+        logger.debug("Raw size: " + rawWidth + "x" + rawHeight);
+        var heightScale = targetHeight / rawHeight;
+        var widthScale = targetHeight / rawWidth;
+        logger.debug("Height scale factor: " + heightScale);
+        logger.debug("Width scale factor: " + widthScale);
+
+        var scale = heightScale <= widthScale ? heightScale : widthScale;
         rawImage.scale(scale, function(err, scaledImage) {
             scaledImage.writeFile(resizedImagePath, {quality: 100}, function(error) {
                 if (error != null) {
-                    console.log(error);
+                    logger.error(error);
                 }
 
                 onResizedCallback(error);

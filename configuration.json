@@ -4,6 +4,8 @@
 	"assetsPath" : "/var/data/footprint-backend/assets/",
 	"thumbnailPath" : "/var/data/footprint-backend/thumbnail/",
     "thumbnailHeight" : 128,
+    "iconPath" : "/var/data/footprint-backend/icon/",
+    "iconHeight" : 32,
     "mongo": {
     	"server": "localhost",
     	"port": 27017,
