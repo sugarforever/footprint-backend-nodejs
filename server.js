@@ -27,12 +27,9 @@ function main() {
         app.use(express.json({limit: '50mb'}));
         app.use(express.urlencoded({limit: '50mb'}));
         app.use(express.static(__dirname + "/static"));
+   		app.use(express.favicon(__dirname + '/static/img/fav.ico'));
     });
  
-    app.locals({
-        title: 'Extended Express Example'
-    });
-    
     app.get('/assets/:name', function(req, res) {
         console.log("Requesting asset " + req.params.name);
         res.sendfile(config.assetsPath + req.params.name);
