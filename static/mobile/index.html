@@ -183,7 +183,26 @@
                     imageArray.push($(v).attr("src"));
                 });
 
-                var jsonFootprint = footprintInstance.createFootprintJSONObject(currentLatitude, currentLongitude, $("#date").val(), imageArray, $("#content").val());
+                var content = $("#content").val();
+                if (content.length <= 0) {
+                    alert("Please say some words.");
+                    $("#content").focus();
+                    return false;
+                }
+
+                if (imageArray.length <= 0) {
+                    alert("Please upload some photos.");
+                    $("#fileupload").focus();
+                    return false;
+                }
+                var datetime = $("#date").val();
+                if (datetime.length <= 0) {
+                    alert("Please select the date and time.");
+                    $("#date").focus();
+                    return false;
+                }
+
+                var jsonFootprint = footprintInstance.createFootprintJSONObject(currentLatitude, currentLongitude, datetime, imageArray, content);
 
                 $.ajax({
                     url: "/api/addFootprint",
