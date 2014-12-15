@@ -357,7 +357,7 @@ function setCurrentDateTime(selecter) {
 
 function generateTimelineSlotListView(listviewSelector, callback) {
 	$(listviewSelector).empty();
-	$.get("/api/timeline/getTimelineSlots", function(response) {
+	$.get("/api/timeline/getTimelineSlots/0", function(response) {
 		$.each(response, function(date, value) {
 			var div = $('<div data-role="collapsible"></div>');
 			$(div).append('<h3>' + date + '</h3>');
