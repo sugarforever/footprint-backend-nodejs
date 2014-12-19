@@ -52,7 +52,7 @@ function main() {
     app.get('/api/delete/:id', function(req, res) {
         footprintModule.deleteFootprint(req, res);
     });
-    app.get('/api/timeline/getTimelineSlots', function(req, res) {
+    app.get('/api/timeline/getTimelineSlots/:page', function(req, res) {
         footprintModule.findTimelineSlots(req, res);
     });
     app.get('/api/timeline/getGeoCenter', function(req, res) {

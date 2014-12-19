@@ -73,8 +73,11 @@ exports.findFootprintsByDate = function(req, res) {
 
 exports.findTimelineSlots = function(req, res) {
     logger.debug("API - Find timeline slots.");
+    var page = req.params.page;
+    var pageSize = 100;
+    logger.debug("Page x PageSize: " + page + " x " + pageSize);
     db.collection(config.mongo.footprintCollection, function(err, collection) {
-        collection.find({deleted: {$ne: true}}, {date: true, content: true}).sort({isoDate: -1}).toArray(function(err, items) {
+        collection.find({deleted: {$ne: true}}, {date: true, content: true}).sort({isoDate: -1}).skip(page * pageSize).limit(pageSize).toArray(function(err, items) {
             var returnedSlots = {};
             for (var key in items) {
                 var v = items[key].date;
