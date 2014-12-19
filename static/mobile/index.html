@@ -211,7 +211,8 @@
                     data: jsonFootprint, 
                     success: function(data) {
                         footprintInstance.cacheFootprint(data);
-                        createMarker(map, data);
+                        var createdMarker = createMarker(map, data, true);
+                        footprintInstance.setBlueCachedGoogleMarkerByItself(createdMarker);
                     },
                     error: function(data) {
                     }

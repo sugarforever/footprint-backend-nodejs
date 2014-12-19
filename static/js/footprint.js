@@ -120,6 +120,16 @@ footprint.prototype.setBlueCachedGoogleMarkerByFootprintId = function(footprintI
 	return marker;
 }
 
+footprint.prototype.setBlueCachedGoogleMarkerByItself = function(marker) {
+	this.cleanBlueMarkersArray();
+
+	if (marker != null) {
+        marker.setIcon('http://maps.google.com/mapfiles/ms/icons/blue-dot.png');
+        this.blueMarkers.push(marker);
+    }
+	return marker;
+}
+
 footprint.prototype.createFootprintJSONObject = function(latitude, longitude, timestamp, imageArray, content) {
 	var json = {
 		latitude: latitude,
@@ -214,6 +224,12 @@ footprint.prototype.dockBottom = function(docked) {
 	$(docked).css("left", 0);
 }
 
+footprint.prototype.navigateFootprintToCenter = function(footprint) {
+	if (footprint != null) {
+		var ll = new google.maps.LatLng(footprint.latitude, footprint.longitude);
+		self.getMap().setCenter(ll);
+	}
+}
 function extendMapCanvasToFillHeight(selectorsExcluded, mapCanvasSelector) {
 	var pixelsExcluded = 0;
 	for (key in selectorsExcluded) {
@@ -244,7 +260,7 @@ function isArray(value) {
 
 var markerGreen = null;
 
-function createMarker(map, jsonFootprint) {
+function createMarker(map, jsonFootprint, moveCenter) {
 	var myLatlng = new google.maps.LatLng(jsonFootprint.latitude, jsonFootprint.longitude);
 	var marker = new google.maps.Marker({
 		position : myLatlng,
@@ -282,7 +298,11 @@ function createMarker(map, jsonFootprint) {
 	marker.setMap(map);
 	footprintInstance.cacheGoogleMarker(jsonFootprint.latitude, jsonFootprint.longitude, marker);
 
+	if (moveCenter == true) {
+		footprintInstance.navigateFootprintToCenter(jsonFootprint);
+	}
     //alert(fromLatLngToPixel(myLatlng, map, footprintInstance.getProjection()));
+    return marker;
 }
 
 function fromLatLngToPixel(latLng, map, projection) {
@@ -376,8 +396,9 @@ function generateTimelineSlotListView(listviewSelector, callback) {
             		var cachedFootprints = footprintInstance.getCachedFootprintsByDate(dateTime);
             		if (cachedFootprints.length > 0) {
             			var first = cachedFootprints[0];
-            			var ll = new google.maps.LatLng(first.latitude, first.longitude);
-            			map.setCenter(ll);
+            			//var ll = new google.maps.LatLng(first.latitude, first.longitude);
+            			//map.setCenter(ll);
+            			footprintInstance.navigateFootprintToCenter(first);
             		}
 
             		for (var index = 0; index < cachedFootprints.length; ++index) {
