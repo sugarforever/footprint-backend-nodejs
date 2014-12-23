@@ -18,6 +18,50 @@ footprint.prototype.initialize = function(footprints) {
 	}
 }
 
+footprint.prototype.updateCachedFootprint = function(footprintId, datetime, content) {
+	var originalFootprint = null;
+
+	for (key in this.cacheFootprints) {
+		var footprints = this.cacheFootprints[key];
+		for (k2 in footprints) {
+			var f = footprints[k2];
+			if (f._id == footprintId) {
+				f.date = datetime;
+				f.content = content;
+				originalFootprint = f;
+				footprints.splice(k2, 1);
+				break;
+			}
+		}
+
+		if (originalFootprint != null) {
+			break;
+		}
+	}
+
+	for (key in this.cacheLatLngFootprints) {
+		var found = false;
+		var footprints = this.cacheLatLngFootprints[key];
+		for (k2 in footprints) {
+			var f = footprints[k2];
+			if (f._id == footprintId) {
+				found = true;
+				if (originalFootprint == null) {
+					originalFootprint = f;
+				}
+				this.cacheLatLngFootprints.splice(k2, 1);
+				break;
+			}
+		}
+
+		if (found) {
+			break;
+		}
+	}
+
+	this.cacheFootprint(originalFootprint);
+}
+
 footprint.prototype.getCachedFootprintsByDate = function(date) {
 	var cached = new Array();
 	if (date in this.cacheFootprints) {
@@ -230,6 +274,25 @@ footprint.prototype.navigateFootprintToCenter = function(footprint) {
 		self.getMap().setCenter(ll);
 	}
 }
+
+footprint.prototype.showOrHideEditable = function(parentSelector, hide) {
+	if (hide) {
+		$.each($(parentSelector + " .editable"), function(k, v) {
+			$(v).hide();
+		});
+		$.each($(parentSelector + " .readonly"), function(k, v) {
+			$(v).show();
+		});
+	} else {
+		$.each($(parentSelector + " .editable"), function(k, v) {
+			$(v).show();
+		});
+		$.each($(parentSelector + " .readonly"), function(k, v) {
+			$(v).hide();
+		});
+	}
+}
+
 function extendMapCanvasToFillHeight(selectorsExcluded, mapCanvasSelector) {
 	var pixelsExcluded = 0;
 	for (key in selectorsExcluded) {
@@ -283,7 +346,8 @@ function createMarker(map, jsonFootprint, moveCenter) {
 
 		refreshGallery("#gallery-images", jsonFootprint.image, jsonFootprint.date + " " + jsonFootprint.content);
 		$("#delete-footprint").attr("footprint-id", jsonFootprint._id);
-		$("#gallery-brief").text(jsonFootprint.date);
+		$("#edit-footprint").attr("footprint-id", jsonFootprint._id);
+		$("#gallery-time").text(jsonFootprint.date);
 		$("#gallery-content").text(jsonFootprint.content);
 
 		jQuery(function($) {
@@ -293,7 +357,10 @@ function createMarker(map, jsonFootprint, moveCenter) {
 		/*$( "#image-gallery-dialog" ).on( "beforeposition", function( event, ui ) {
 			footprintInstance.dockBottom($("#image-gallery-dialog-popup"));
 		} );*/
+		footprintInstance.showOrHideEditable("#image-gallery-dialog", true);
+		$("#edit-footprint").text("edit");
 		$("#image-gallery-dialog").popup("open", {x: 1000000, y:1000000});
+		//$("#datetime-editor").popup("open");
 	});
 	marker.setMap(map);
 	footprintInstance.cacheGoogleMarker(jsonFootprint.latitude, jsonFootprint.longitude, marker);

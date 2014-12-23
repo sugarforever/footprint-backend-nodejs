@@ -1,6 +1,6 @@
 @charset "UTF-8";
 
-body, pre, input, .ui-btn {
+body, pre, input, .ui-btn, textarea {
 	font-family: 'lucida grande',tahoma,verdana,arial,sans-serif
 }
 
@@ -10,7 +10,12 @@ p, pre {
 .clear {
 	clear: both;
 }
-
+.hidden, #image-gallery-dialog .hidden {
+	display: none;
+}
+#image-gallery-dialog textarea.editable {
+	margin: 0;
+}
 .gallery-image-div {
 	float: left;
 	height: 128px;
@@ -42,6 +47,9 @@ p, pre {
 	max-width: 80% !important;*/
 	width: 100%;
 	max-width: 100% !important;
+}
+#edit-datetime-parent {
+	max-width: 320px;
 }
 #info-content {
 	min-width: 150px;

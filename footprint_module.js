@@ -149,6 +149,32 @@ exports.deleteFootprint = function(req, res) {
         });
     });
 }
+
+exports.updateFootprint = function(req, res) {
+    var _id = req.params.id;
+    logger.debug("Update footprint with _id: " + _id);
+    logger.debug("Request body: " + JSON.stringify(req.body));
+    var datetime = req.body.datetime;
+    var content = req.body.content;
+
+    var updater = {};
+    if (datetime != null)
+        updater.date = datetime;
+    if (content != null)
+        updater.content = content;
+    
+    logger.debug(updater);
+    db.collection(config.mongo.footprintCollection, function(err, collection) {
+        collection.update({'_id':new BSON.ObjectID(_id)}, { $set: updater }, function(err, result) {
+            if (err) {
+                res.send({'error':'An error has occurred - ' + err});
+            } else {
+                res.send(req.body);
+            }
+        });
+    });
+}
+
 exports.uploadImage = function(req, res) {
     logger.debug('Uploading image: ' + JSON.stringify(req.files));
     

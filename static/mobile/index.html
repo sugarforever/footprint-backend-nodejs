@@ -11,9 +11,6 @@
     <link rel="stylesheet" href="/css/footprint-main.css">
 </head>
 <body>
-    <!--div id="footprint-brief" style="position: absolute; top: 100px; left: 100px;z-index:100; opacity: 1; border: solid 1px gray; font-size: 1em; padding: 2px; background-color: lightgray">
-    dfajlfldsjlfaldsfls
-    </div-->
     <div data-role="page" id="map-page" data-title="Footprint Mobile">
         <div data-role="panel" data-display="overlay" id="timeline-panel"> 
             <span>My timeline</span>
@@ -36,8 +33,6 @@
                     <a href="#" data-rel="back" class="ui-btn ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>
                     <label for="date" >Date:</label>
                     <input type="text" name="date" id="date" value="" data-theme="a">
-                    <!--<label for="brief" >Brief:</label>
-                    <input type="text" name="brief" id="brief" value="" data-theme="a">-->
                     <label for="content" >Message:</label>
                     <textarea rows="6" name="content" id="content" value="" data-theme="a"></textarea>
                     <label for="files" >Photo</label>
@@ -47,15 +42,25 @@
             </div>
             <div data-role="popup" id="image-gallery-dialog" data-theme="a" data-corners="false">
                 <div data-role="header">
-                    <a href="#" class="ui-btn-left ui-mini" id="edit-footprint">modify</a>
+                    <a href="#" class="ui-btn-left ui-mini" id="edit-footprint">edit</a>
                     <h1><a href="#" data-rel="back">back</a></h1>
                     <a href="#" class="ui-btn-right ui-mini" id="delete-footprint">delete</a>
                 </div>
                 <div data-role="main" class="ui-content" id="imageGallery">
-                    <h4 id="gallery-brief"></h4>
-                    <pre id="gallery-content"></pre>
+                    <h4 id="gallery-time" class="readonly"></h4>
+                    <div class="editable hidden" data-source="#gallery-time" datetimepicker="#edit-datetime" id="edit-datetime-parent"><input type="text" id="edit-datetime"></div>
+                    <pre id="gallery-content" class="readonly"></pre>
+                    <textarea class="editable hidden" id="edit-content" data-source="#gallery-content" adjust-height="false"></textarea>
                     <div id="gallery-images"></div>
                     <div class="clear"></div>
+                </div>
+                <div data-role="popup" id="datetime-editor" data-theme="a" data-corners="false" data-position-to="#image-gallery-dialog">
+                    <div data-role="header">
+                        <h1><a href="#" data-rel="back">back</a></h1>
+                    </div>
+                    <div data-role="main" class="ui-content">
+                        <input type="text" name="date" class="edit-datetime" value="" data-theme="a">
+                    </div>
                 </div>
             </div>
         </div>
@@ -176,6 +181,8 @@
             });
 
             $('#date').datetimepicker({lazyInit: true, format: "Y-m-d H:i"});
+            $('#edit-datetime').datetimepicker({lazyInit: true, format: "Y-m-d H:i"});
+            $('#datetime-editor .edit-datetime').datetimepicker({lazyInit: true, format: "Y-m-d H:i", inline: true, positionTo: "#"});
 
             $('#marker-submit').bind('click', function() {
                 var imageArray = [];
@@ -266,6 +273,76 @@
                     alert(failMessage);
                 }
             });
+
+            $("#edit-footprint").bind("click", function() {
+                var footprintId = $(this).attr('footprint-id');
+                var action = $(this).text();
+                console.log(action);
+                var show = null;
+                var hide = null;
+                if (action == "edit") {
+                    $(this).text("save");
+                    show = ".editable";
+                    hide = ".readonly";
+                } else if (action == "save") {
+                    $(this).text("edit");
+                    hide = ".editable";
+                    show = ".readonly";
+
+                    var modifiedDatetime = $("#edit-datetime").val();
+                    var modifiedContent = $("#edit-content").val();
+                    console.log("Modified datetime: " + modifiedDatetime);
+                    console.log("Modified content: " + modifiedContent);
+
+                    $.ajax({
+                        url: "/api/updateFootprint/" + footprintId,
+                        type: "post",
+                        traditional: true,
+                        data: {
+                            datetime: modifiedDatetime,
+                            content: modifiedContent
+                        }, 
+                        success: function(data) {
+                            console.log("Updating footprint succeeded.");
+                            $("#gallery-time").text(modifiedDatetime);
+                            $("#gallery-content").text(modifiedContent);
+
+                            footprintInstance.updateCachedFootprint(footprintId, modifiedDatetime, modifiedContent);
+                        },
+                        error: function(data) {
+                            console.log("Updating footprint failed.");
+                        }
+                    });
+                }
+
+                if (show != null) {
+                    $.each($(show), function(k, v) {
+                        $(v).show();
+                        
+                        var source = $(v).attr("data-source");
+                        if ($(v).prop("tagName") == "textarea") {
+                            $(v).height(0);
+                        }
+
+                        if ($(v).attr("datetimepicker") != null) {
+                            var datetimepicker = $(v).attr("datetimepicker");
+                            $(datetimepicker).val($(source).text());
+                        } else {
+                            $(this).val($(source).text());
+                        }
+                        
+                        
+                    })
+                }
+
+                if (hide != null) {
+                    $.each($(hide), function(k, v) {
+                        $(v).hide();
+                    })
+                }
+
+                footprintInstance.dockBottom($("#image-gallery-dialog-popup"));
+            })
         });
 
     function callback(value) {

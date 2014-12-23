@@ -60,6 +60,7 @@ function main() {
     });
 
     app.post('/api/addFootprint', footprintModule.addFootprint);
+    app.post('/api/updateFootprint/:id', footprintModule.updateFootprint);
     app.post('/api/uploadImage', footprintModule.uploadImage);
 
     app.listen(config.port);
