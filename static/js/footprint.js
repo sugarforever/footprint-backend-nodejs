@@ -219,7 +219,7 @@ footprint.prototype.displayFootprintBriefByMarkerAndFootprint = function(marker,
 		truncatedContent = truncatedContent.substr(0, self.maxContentInfoLength - 3) + "...";
 	}
 
-	var contentString = '<div id="info-content">'+
+	var contentString = '<div id="info-content" class="scrollFix">'+
 	'<h4 id="firstHeading" class="firstHeading">' + footprint.date + '</h4>'+
 	'<pre>' + truncatedContent + '</pre>';
 
@@ -452,7 +452,7 @@ function generateTimelineSlotListView(listviewSelector, callback) {
             $.each(value, function(key, timeAndContent) {
             	var time = timeAndContent.time;
             	var content = timeAndContent.content;
-            	var a = $('<a href="#" class="block-style">' + time + '</a><p class="timeslot-content">' + content + "</p>");
+            	var a = $('<a href="#" class="block-style">' + time + '</a><pre class="timeslot-content">' + content + "</pre>");
             	var dateTime = date + " " + time;
 
             	$(a).bind("click", function() {
